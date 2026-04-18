@@ -334,7 +334,7 @@ def greenhouse_jobs():
                             "salary_range": salary_range,
                             "salary_range_usd": salary_range_usd,
                             "url": job.get('absolute_url'),
-                            "desc": clean_content,
+                            "description": clean_content,
                             "search_flag": ryan_match_word if ryan_match else mik_match_word,
                             "last_scanned": datetime.now(timezone.utc)                           
                         }
