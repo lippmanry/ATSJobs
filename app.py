@@ -87,7 +87,7 @@ def load_data():
     combined_df = pd.concat([df_adzuna, df_greenhouse], ignore_index=True)
 
     if 'date_posted' in combined_df.columns:
-        combined_df['date_posted'] = pd.to_datetime(combined_df['date_posted'], errors='coerce')
+        combined_df['date_posted'] = pd.to_datetime(combined_df['date_posted'], utc=True, errors='coerce')
     return combined_df
 
 
