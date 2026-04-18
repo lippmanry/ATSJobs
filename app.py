@@ -105,7 +105,8 @@ try:
             "salary_range_usd",
             "time_since_posted",
             "date_posted",
-            "search_flag"   
+            "search_flag",
+            "source"   
             
         ]
         #logo
