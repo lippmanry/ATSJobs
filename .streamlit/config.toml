@@ -1,0 +1,8 @@
+[theme]
+primaryColor="#93FF35"
+linkColor = "#93FF35"
+base = "dark"
+
+[theme.sidebar]
+borderColor="#93FF35"
+showWidgetBorder=true
