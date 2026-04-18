@@ -125,6 +125,14 @@ try:
         if selected_tag != "all":
             df = df[df['search_flag'] == selected_tag]
         
+        #filter by source
+        sources = sorted(df['source'].unique().tolist())
+        selected_source = st.sidebar.selectbox("Posting source", ["all"] + sources)
+        
+        #apply source filter
+        if selected_source != "all":
+            df = df[df['source'] == selected_source]
+        
         #search job titles OR description for key words
         search = st.sidebar.text_input("Search", "")        
         #apply job title search
