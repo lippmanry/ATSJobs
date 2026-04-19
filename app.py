@@ -100,7 +100,8 @@ try:
             "job_title",
             "url",             
             "company",
-            "location",            
+            "location",
+            "is_remote"            
             "salary_range",
             "salary_range_usd",
             "time_since_posted",
