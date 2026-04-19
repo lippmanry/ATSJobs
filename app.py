@@ -94,7 +94,7 @@ def load_data():
 
 try:
     df = load_data()
-    df["is_remote"] = df["is_remote"].map({True: "True", False: "False", None: "Unknown"})
+    df["is_remote"] = df["is_remote"].map({True: "True", False: "False", None: "Unknown", "Unknown": "Unknown"})
     if not df.empty:
         column_order = [
             "job_title",
