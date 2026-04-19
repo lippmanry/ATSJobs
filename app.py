@@ -125,13 +125,21 @@ try:
         if selected_tag != "all":
             df = df[df['search_flag'] == selected_tag]
         
-        #filter by source
+        # #filter by source
+        # sources = sorted(df['source'].unique().tolist())
+        # selected_source = st.sidebar.selectbox("Posting source", ["all"] + sources)
+        
+        # #apply source filter
+        # if selected_source != "all":
+        #     df = df[df['source'] == selected_source]
+        
+        #filter by source - multiselect
         sources = sorted(df['source'].unique().tolist())
-        selected_source = st.sidebar.selectbox("Posting source", ["all"] + sources)
+        selected_source = st.sidebar.multiselect("Posting source", options=sources, default=[])
         
         #apply source filter
-        if selected_source != "all":
-            df = df[df['source'] == selected_source]
+        if selected_source:
+            df = df[df['source'].isin(selected_source)]
         
         #search job titles OR description for key words
         search = st.sidebar.text_input("Search", "")        
