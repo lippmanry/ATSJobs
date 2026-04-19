@@ -101,7 +101,7 @@ try:
             "url",             
             "company",
             "location",
-            "is_remote"            
+            "is_remote",            
             "salary_range",
             "salary_range_usd",
             "time_since_posted",
