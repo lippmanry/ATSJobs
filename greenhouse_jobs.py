@@ -303,12 +303,13 @@ def greenhouse_jobs():
                         country = "canada" if ryan_match else "uk"
                         
                         #try built in transparency first
-                        pay_data = details.get('pay_transparency', {}) if details else {}
-                        
-                        if pay_data and pay_data.get('min_amount'):
-                            min_v = pay_data.get('min_amount')
-                            max_v = pay_data.get('max_amount')
-                            currency = pay_data.get('currency')
+                        pay_details = details.get('pay_input_ranges', {}) if details else {}
+                        pay_data = next((item for item in pay_details if item.get('min_cents')), None)
+
+                        if pay_data:
+                            min_v = pay_data.get('min_cents')/100
+                            max_v = pay_data.get('max_cents')/100
+                            currency = pay_data.get('currency_type')
                             salary_range = format_salary_range(min_v, max_v, currency)
                             salary_range_usd = format_salary_range(min_v, max_v, currency, is_usd=True)
                         
