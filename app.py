@@ -151,6 +151,7 @@ try:
             df = df[df['job_title'].str.contains(search, case=False, na=False) | df['description'].str.contains(search, case=False, na=False)]
         
         #return remote only roles
+        df['is_remote'] = df['is_remote'].astype(bool)
         remotes = st.sidebar.checkbox("Remote only", value=False, help="Will exclude unknown roles.")
         
         if remotes:
