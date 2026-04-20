@@ -3,7 +3,7 @@ name: Scheduled MongoDB Token Update
 on:
   schedule:
 
-    - cron: '0 */4 * * *'
+    - cron: '12 */4 * * *'
   workflow_dispatch: 
 
 jobs:
