@@ -45,16 +45,16 @@ def save_tokens_mongo(tokens):
         token_collection.bulk_write(ops)
         
 #token search        
-def greenhouse_token_search(keyword, limit=50, start=0):
-    raw_query = f'site:jobs.lever.co OR site:jobs.eu.lever.co {keyword}'
+def greenhouse_token_search(keyword, limit=10, start=0):
+    raw_query = f'site:boards.greenhouse.io -inurl:embed {keyword}'
     query = quote_plus(raw_query)
     
     tokens = set()
     
     #fake useragent 
     ua = UserAgent()
-    user_agent = ua.random()
-    
+    user_agent = ua.random
+    print(f"Searching: https://www.google.com/search?q={query}&num={limit}&gl=ca&start={start}")
     #chrome options
     chrome_options = Options()
     chrome_options.add_argument("--disable-blink-features=AutomationControlled")
@@ -119,7 +119,7 @@ def greenhouse_new_tokens():
         word = random.choice(anchor_words)
         location = random.choice(locations)
         query = f"{word} {location}"
-        start_index = random.choice([0,5,10,15,20])
+        start_index = random.choice([0,10])
         
         new_found = greenhouse_token_search(keyword=query, limit=20, start=start_index)
         
@@ -138,26 +138,6 @@ def greenhouse_new_tokens():
             print(f"No new tokens found for {query}. Trying new keywords in {wait_time}s...")
             time.sleep(wait_time)
         
-    # max_attempts =  3
-    # new_found = {}
-    
-    # for attempt in range(1, max_attempts + 1):
-    #     word = random.choice(anchor_words)
-    #     location = random.choice(locations)
-    #     query = f"{word} {location}"
-        
-    #     start_index = random.choice([0,5,10,15,20])        
-    #     new_found = greenhouse_token_search(keyword=query, limit=20, start=start_index)
-    #     if new_found:
-    #         save_tokens_mongo(new_found)
-    #         print(f"{len(new_found)} new tokens found on [{datetime.now()}]: {new_found}")
-            
-    #     if attempt < max_attempts:
-    #         wait_time = random.randint(30, 60)
-    #         print(f"No new tokens found, switching keywords and waiting {wait_time}s...")
-    #         time.sleep(wait_time)            
-    #     else:
-    #         print(f"No new tokens found.")
 
 if __name__ == "__main__":
     greenhouse_new_tokens()    
