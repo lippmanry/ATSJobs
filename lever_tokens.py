@@ -14,6 +14,8 @@ from datetime import datetime
 import os
 
 #inits
+from urllib.parse import quote_plus
+
 load_dotenv(override=True)
 mongo_uri = os.getenv('MONGO_URI')
 client = MongoClient(mongo_uri)
@@ -24,7 +26,7 @@ token_collection = db['lever_tokens']
 #save tokens to mongo
 def save_tokens_mongo(tokens):
     ops = []
-    for token in tokens:
+    for token, region in tokens.items():
         ops.append(UpdateOne(
             {'token': token},
                 {
@@ -33,19 +35,24 @@ def save_tokens_mongo(tokens):
                     'failures': 0,
                     'priority': False
                 },
-                '$set': {'last_seen_on_google': datetime.now()}
+                '$set': {
+                    'last_seen_on_google': datetime.now(),
+                    'region': region
+                    }
                 },
             upsert=True
             )
         )
     if ops:
         token_collection.bulk_write(ops)
-def lever_token_search(limit=10, start=0):
+def lever_token_search(keyword, limit=10, start=0):
     #blacklist ai gigs
-    BLACKLIST = {"mercor", "dataannotation", "lionbridge"}
+    BLACKLIST = {"mercor", "dataannotation", "lionbridge", "palantir"}
     
-    query = 'site:jobs.lever.co OR site:jobs.eu.lever.co ("Canada" OR "United Kingdom" OR "UK" OR "Global" OR "Remote")'
+    raw_query = f'site:jobs.lever.co OR site:jobs.eu.lever.co {keyword}'
+    query = quote_plus(raw_query)
     
+    print(f"Searching: https://www.google.com/search?q={query}&num={limit}&gl=ca&start={start}")
     #chrome options
     chrome_options = Options()
     chrome_options.add_argument("--disable-blink-features=AutomationControlled")
@@ -53,10 +60,10 @@ def lever_token_search(limit=10, start=0):
     chrome_options.add_argument("--headless=False")
     chrome_options.add_argument("--no-sandbox")
     chrome_options.add_argument("--disable-dev-shm-usage")
-    chrome_options.add_argument("--disable-extensions")
-    chrome_options.add_argument("--proxy-server='direct://'")
-    chrome_options.add_argument("--proxy-bypass-list=*")
-    chrome_options.add_argument("--start-maximized")
+    # chrome_options.add_argument("--disable-extensions")
+    # chrome_options.add_argument("--proxy-server='direct://'")
+    # chrome_options.add_argument("--proxy-bypass-list=*")
+    # chrome_options.add_argument("--start-maximized")
 
     driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
     
@@ -64,6 +71,15 @@ def lever_token_search(limit=10, start=0):
     
     try:
         driver.get(f"https://www.google.com/search?q={query}&num={limit}&gl=ca&start={start}")
+        
+        #deal with potential consent banner
+        try:
+            time.sleep(2)
+            consent_btn = driver.find_element(By.XPATH, "//button[contains(., 'Accept all')]")
+            consent_btn.click()                
+        except:
+            #continue as normal if no consent banner
+            pass            
 
         time.sleep(random.uniform(7,12))
         
@@ -95,14 +111,36 @@ def lever_token_search(limit=10, start=0):
     return tokens
 
 def lever_new_tokens():
-    current_count = token_collection.count_documents({})
-    start_index = current_count if current_count < 300 else random.randint(0,150)
-    new_found = lever_token_search(limit=60, start=start_index)
-    if new_found:
-        save_tokens_mongo(new_found)
-        print(f"{len(new_found)} new tokens found on [{datetime.now()}]: {new_found}")
-    else:
-        print(f"No new tokens found.")
+    #search for multiple industries via common operations
+    anchor_words = ["Analyst", "Developer", "Manager", "Operations", "Sales", "Engineer"]
+    
+    locations = ["Canada", "United Kingdom", "UK", "Global", "Remote"]
+    
+    successful_runs = 0
+    
+    while successful_runs < 3:
+        new_found = {}
+
+        word = random.choice(anchor_words)
+        location = random.choice(locations)
+        query = f"{word} {location}"        
+        start_index = random.choice([0,10])
+        
+        new_found = lever_token_search(keyword=query, limit=20, start=start_index)
+        
+        if new_found:
+            save_tokens_mongo(new_found)
+            successful_runs += 1
+            print(f"{len(new_found)} new tokens found on [{datetime.now()}]: {new_found}")         
+            
+            if successful_runs < 3:
+                wait_time = random.randint(30, 60)
+                print(f"Resting {wait_time}s...")
+                time.sleep(wait_time)            
+        else:
+            wait_time = random.randint(30,60)
+            print(f"No new tokens found found for {query}. Trying new keywords in {wait_time}s...")
+            time.sleep(wait_time)
 
 if __name__ == "__main__":
     lever_new_tokens()
