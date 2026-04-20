@@ -122,7 +122,7 @@ try:
         ]
         #logo
         st.sidebar.image("assets/datacat-dark-side.png", 
-                        use_container_width=True)
+                        width="stretch")
         #filters
         st.sidebar.header("Filters")
         #return remote only roles
