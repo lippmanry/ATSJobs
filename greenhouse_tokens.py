@@ -12,6 +12,7 @@ from dotenv import load_dotenv
 from pymongo import MongoClient, UpdateOne
 from datetime import datetime
 import os
+from urllib.parse import quote_plus
 
 
 #inits
@@ -43,8 +44,10 @@ def save_tokens_mongo(tokens):
         token_collection.bulk_write(ops)
         
 #token search        
-def greenhouse_token_search(limit=50, start=0):
-    query = 'site:boards.greenhouse.io -inurl:embed ("Canada" OR "United Kingdom" OR "UK" OR "Global" OR "Remote")'
+def greenhouse_token_search(keyword, limit=50, start=0):
+    raw_query = f'site:jobs.lever.co OR site:jobs.eu.lever.co {keyword}'
+    query = quote_plus(raw_query)
+    
     tokens = set()
     
     #chrome options
@@ -61,7 +64,17 @@ def greenhouse_token_search(limit=50, start=0):
     
     try:
         driver.get(f"https://www.google.com/search?q={query}&num={limit}&gl=ca&start={start}")
+        
+        #deal with potential consent banner
+        try:
+            time.sleep(2)
+            consent_btn = driver.find_element(By.XPATH, "//button[contains(., 'Accept all')]")
+            consent_btn.click()                
+        except:
+            #continue as normal if no consent banner
+            pass            
 
+        
         time.sleep(random.uniform(7,12))
         
         #emulate human scrolling to try and avoid scraper flag
@@ -86,16 +99,60 @@ def greenhouse_token_search(limit=50, start=0):
         
     return list(tokens)
 
-#slow token discovery, add to mongo
+#slow token discovery, add to mongo - 3 iterations via common keywords
 def greenhouse_new_tokens():
-    current_count = token_collection.count_documents({})
-    start_index = current_count if current_count < 300 else random.randint(0,150)
-    new_found = greenhouse_token_search(limit=60, start=start_index)
-    if new_found:
-        save_tokens_mongo(new_found)
-        print(f"{len(new_found)} new tokens found on [{datetime.now()}]: {new_found}")
-    else:
-        print(f"No new tokens found.")
+    #search for multiple industries via common operations
+    anchor_words = ["Analyst", "Developer", "Manager", "Operations", "Sales", "Engineer"]
+    
+    locations = ["Canada", "United Kingdom", "UK", "Global", "Remote"]
+    
+    successful_runs = 0
+    
+    while successful_runs < 3:
+        new_found = {}
+        
+        word = random.choice(anchor_words)
+        location = random.choice(locations)
+        query = f"{word} {location}"
+        start_index = random.choice([0,5,10,15,20])
+        
+        new_found = greenhouse_token_search(keyword=query, limit=20, start=start_index)
+        
+        if new_found:
+            save_tokens_mongo(new_found)
+            successful_runs += 1
+            print(f"{len(new_found)} new tokens found on [{datetime.now()}]: {new_found}") 
+            
+            if successful_runs < 3:
+                wait_time = random.randint(30,60)
+                print(f"Resting {wait_time}s...")
+                time.sleep(wait_time)
+        
+        else:
+            wait_time = random.randint(30,60)
+            print(f"No new tokens found for {query}. Trying new keywords in {wait_time}s...")
+            time.sleep(wait_time)
+        
+    # max_attempts =  3
+    # new_found = {}
+    
+    # for attempt in range(1, max_attempts + 1):
+    #     word = random.choice(anchor_words)
+    #     location = random.choice(locations)
+    #     query = f"{word} {location}"
+        
+    #     start_index = random.choice([0,5,10,15,20])        
+    #     new_found = greenhouse_token_search(keyword=query, limit=20, start=start_index)
+    #     if new_found:
+    #         save_tokens_mongo(new_found)
+    #         print(f"{len(new_found)} new tokens found on [{datetime.now()}]: {new_found}")
+            
+    #     if attempt < max_attempts:
+    #         wait_time = random.randint(30, 60)
+    #         print(f"No new tokens found, switching keywords and waiting {wait_time}s...")
+    #         time.sleep(wait_time)            
+    #     else:
+    #         print(f"No new tokens found.")
 
 if __name__ == "__main__":
     greenhouse_new_tokens()    
