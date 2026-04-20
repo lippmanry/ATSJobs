@@ -154,7 +154,7 @@ try:
         remotes = st.sidebar.checkbox("Remote only", value=False, help="Will exclude unknown roles.")
         
         if remotes:
-            df =df[df['is_remote'] == 'True']
+            df =df[df['is_remote'] == True]
 
         
         df = df.sort_values(by='date_posted', ascending=False)   
