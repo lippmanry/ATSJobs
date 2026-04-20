@@ -125,7 +125,7 @@ try:
             "Ryan": ["cybersecurity", "siem", "splunk", "threat", "vulnerability", "security engineer", "security analyst", "security", "information security"],
             "Mik": ["frontend", "frontend developer", "front-end", "vue", "product engineer"]
         }
-        profiles = ["all"] + list(PROFILE_MAP.keys())
+        profiles = list(PROFILE_MAP.keys())
         selected_profile = st.sidebar.selectbox("Search profile", ["all"] + profiles)
         
         
