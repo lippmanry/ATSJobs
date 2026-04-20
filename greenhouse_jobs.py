@@ -208,7 +208,7 @@ def greenhouse_jobs():
     
 
     
-    ryan_keywords = ["security", "cybersecurity", "SIEM", "splunk", "threat", "CTI", "vulnerability"]
+    ryan_keywords = ["cybersecurity", "siem", "splunk", "threat", "cti", "vulnerability", "security"]
     mik_keywords = ["frontend", "frontend developer", "vue", "product engineer"]
     
     ryan_loc = ["canada", "ontario"]
