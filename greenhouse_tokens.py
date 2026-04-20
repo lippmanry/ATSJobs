@@ -13,6 +13,7 @@ from pymongo import MongoClient, UpdateOne
 from datetime import datetime
 import os
 from urllib.parse import quote_plus
+from fake_useragent import UserAgent
 
 
 #inits
@@ -50,10 +51,14 @@ def greenhouse_token_search(keyword, limit=50, start=0):
     
     tokens = set()
     
+    #fake useragent 
+    ua = UserAgent()
+    user_agent = ua.random()
+    
     #chrome options
     chrome_options = Options()
     chrome_options.add_argument("--disable-blink-features=AutomationControlled")
-    chrome_options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36")
+    chrome_options.add_argument(f"user-agent={user_agent}")
     chrome_options.add_argument("--headless=new")
     chrome_options.add_argument("--no-sandbox")
     chrome_options.add_argument("--disable-dev-shm-usage")

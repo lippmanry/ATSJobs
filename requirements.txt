@@ -8,3 +8,4 @@ python-dateutil
 hdx-python-country
 pymongo
 python-dotenv
+fake-useragent
