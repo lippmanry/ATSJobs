@@ -129,7 +129,7 @@ try:
         selected_profile = st.sidebar.selectbox("Search profile", ["all"] + profiles)
         
         
-        #apply tag filter
+        #apply profile selection filter
         if selected_profile != "all":
             target_tags = PROFILE_MAP[selected_profile]
             
@@ -149,6 +149,12 @@ try:
         #apply job title search
         if search:
             df = df[df['job_title'].str.contains(search, case=False, na=False) | df['description'].str.contains(search, case=False, na=False)]
+        
+        #return remote only roles
+        remotes = st.sidebar.checkbox("Remote only", value=False, help="Will exclude unknown roles.")
+        
+        if remotes:
+            df =df[df['is_remote'] == 'True']
 
         
         df = df.sort_values(by='date_posted', ascending=False)   
