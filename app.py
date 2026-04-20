@@ -118,11 +118,12 @@ try:
         #filters
         st.sidebar.header("Filters")
         #return remote only roles
-        remotes = st.sidebar.checkbox(
-            label="Remote only", 
-            key="remote_filter_unique", 
-            value=False, 
-            help="Will exclude 'unknown' roles.")
+        remotes = st.sidebar.checkbox("text")
+        # remotes = st.sidebar.checkbox(
+        #     label="Remote only", 
+        #     key="remote_filter_unique", 
+        #     value=False, 
+        #     help="Will exclude 'unknown' roles.")
 
             
         #filter by search profile
@@ -158,8 +159,8 @@ try:
 
         
         
-        if remotes:
-            df = df[df['is_remote'] == "True"]
+        # if remotes:
+        #     df = df[df['is_remote'] == "True"]
 
         
         df = df.sort_values(by='date_posted', ascending=False)   
