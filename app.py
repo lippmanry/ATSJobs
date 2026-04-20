@@ -118,16 +118,7 @@ try:
         #filters
         st.sidebar.header("Filters")
         #return remote only roles
-        with st.sidebar:
-            add_radio = st.radio(
-                "Choose a shipping method",
-                ("Standard (5-15 days)", "Express (2-5 days)")
-    )
-        # remotes = st.sidebar.checkbox(
-        #     label="Remote only", 
-        #     key="remote_filter_unique", 
-        #     value=False, 
-        #     help="Will exclude 'unknown' roles.")
+
 
             
         #filter by search profile
@@ -160,11 +151,6 @@ try:
         if search:
             df = df[df['job_title'].str.contains(search, case=False, na=False) | df['description'].str.contains(search, case=False, na=False)]
         
-
-        
-        
-        # if remotes:
-        #     df = df[df['is_remote'] == "True"]
 
         
         df = df.sort_values(by='date_posted', ascending=False)   
