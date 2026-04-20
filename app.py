@@ -118,9 +118,7 @@ try:
         #filters
         st.sidebar.header("Filters")
         #return remote only roles
-        with st.sidebar:
-            
-            remotes = st.sidebar.checkbox("text")
+        st.sidebar.checkbox("text")
         # remotes = st.sidebar.checkbox(
         #     label="Remote only", 
         #     key="remote_filter_unique", 
