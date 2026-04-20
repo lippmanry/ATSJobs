@@ -13,6 +13,8 @@ from dotenv import load_dotenv
 from pymongo import MongoClient, UpdateOne
 from datetime import datetime
 import os
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
 
 
 #inits
@@ -204,6 +206,14 @@ def greenhouse_jobs():
         'is_active': True,
         'failures': {'$lt': 3}
     })
+    #session logic
+    session = requests.Session()
+    retries = Retry(total=3, backoff_factor=1, status_forcelist=[502, 503, 504])
+    session.mount('https://', HTTPAdapter(max_retries=retries))
+    session.headers.update({
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36"
+    })    
+    
     tokens = [t.get('token') for t in active_tokens if t.get('token')]
     
 
@@ -223,7 +233,7 @@ def greenhouse_jobs():
         api_url = f"https://boards-api.greenhouse.io/v1/boards/{token}/jobs?content=true"
         
         try:
-            response = requests.get(api_url, headers=headers, timeout=60)
+            response = session.get(api_url, timeout=(10,90))
             
             #rate limit handler
             if response.status_code == 429:
@@ -238,7 +248,14 @@ def greenhouse_jobs():
                 
                 data = response.json()
                 jobs = data.get('jobs', [])
-            
+                total_jobs_found = len(jobs)
+                print(f"    > {total_jobs_found} jobs for token {token}. Filtering...")                
+
+                #heartbeat for debugging
+                for index, job in enumerate(jobs):
+                    if index % 100 == 0 and index > 0:
+                        print(f"    > Processed {index}/{total_jobs_found}")
+                
                 for job in jobs:
                     #searchable text
                     title = job.get('title', '').lower()
@@ -294,7 +311,7 @@ def greenhouse_jobs():
                         if updated_dt.tzinfo is None:
                             updated_dt = updated_dt.replace(tzinfo=timezone.utc)
                         days_old = (datetime.now(timezone.utc) - updated_dt).days
-                        if days_old > 30:
+                        if days_old > 45:
                             continue
                         
                         time_since = date_handler(updated_at)

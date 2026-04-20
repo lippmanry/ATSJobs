@@ -118,23 +118,23 @@ try:
         #filters
         st.sidebar.header("Filters")
 
+
             
-        #filter by search tag
-        tags = sorted(df['search_flag'].unique().tolist())
-        selected_tag = st.sidebar.selectbox("Search flag", ["all"] + tags)
+        #filter by search profile
+        PROFILE_MAP ={
+            "Ryan": ["cybersecurity", "siem", "splunk", "threat", "vulnerability", "security engineer", "security analyst", "security", "information security"],
+            "Mik": ["frontend", "frontend developer", "front-end", "vue", "product engineer"]
+        }
+        profiles = ["all"] + list(PROFILE_MAP.keys())
+        selected_profile = st.sidebar.selectbox("Search profile", ["all"] + profiles)
         
         
         #apply tag filter
-        if selected_tag != "all":
-            df = df[df['search_flag'] == selected_tag]
-        
-        # #filter by source
-        # sources = sorted(df['source'].unique().tolist())
-        # selected_source = st.sidebar.selectbox("Posting source", ["all"] + sources)
-        
-        # #apply source filter
-        # if selected_source != "all":
-        #     df = df[df['source'] == selected_source]
+        if selected_profile != "all":
+            target_tags = PROFILE_MAP[selected_profile]
+            
+            df = df[df['search_flag'].isin(target_tags)]
+
         
         #filter by source - multiselect
         sources = sorted(df['source'].unique().tolist())

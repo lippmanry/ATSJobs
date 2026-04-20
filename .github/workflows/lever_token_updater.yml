@@ -1,9 +1,9 @@
-name: Scheduled MongoDB Greenhouse Token Update
+name: Scheduled MongoDB Lever Token Update
 
 on:
   schedule:
 
-    - cron: '12 */4 * * *'
+    - cron: '46 */3 * * *'
   workflow_dispatch: 
 
 jobs:
@@ -28,4 +28,4 @@ jobs:
         env:
 
           MONGO_URI: ${{ secrets.MONGO_URI }}
-        run: python greenhouse_tokens.py
+        run: python lever_tokens.py
