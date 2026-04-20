@@ -78,13 +78,21 @@ def load_data():
     df_adzuna = pd.DataFrame(adzuna_data)
     df_adzuna['source'] = 'Adzuna'
     
-    #ats datas
+    #ATS DATAS
+    #greenhouse
     greenhouse_collection = db['greenhouse_jobs']
     greenhouse_data = list(greenhouse_collection.find({}, {"_id":0}))
     df_greenhouse = pd.DataFrame(greenhouse_data)
     df_greenhouse['source'] = 'Greenhouse'
     
-    combined_df = pd.concat([df_adzuna, df_greenhouse], ignore_index=True)
+    #lever
+    lever_collection = db['lever_jobs']
+    lever_data = list(lever_collection.find({}, {"_id":0}))
+    df_lever = pd.DataFrame(lever_data)
+    df_lever['source'] = 'Lever'
+    
+    #combined
+    combined_df = pd.concat([df_adzuna, df_greenhouse, df_lever], ignore_index=True)
 
     if 'date_posted' in combined_df.columns:
         combined_df['date_posted'] = pd.to_datetime(combined_df['date_posted'], utc=True, errors='coerce')
