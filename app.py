@@ -102,8 +102,8 @@ def load_data():
     combined_df = pd.concat([df_adzuna, df_greenhouse, df_lever, df_ashby], ignore_index=True)
 
     if 'date_posted' in combined_df.columns:
-        combined_df['date_posted'] = combined_df['date_posted'].astype(str).str.strip()
         combined_df['date_posted'] = pd.to_datetime(combined_df['date_posted'], utc=True, errors='coerce')
+        combined_df = combined_df.dropna(subset=['date_posted'])
 
     return combined_df
 
@@ -192,7 +192,8 @@ try:
                 "company": "Company",
                 "location": "Location",
                 "time_since_posted": "Time Since Posted",
-                "search_flag": "Search Flag"
+                "search_flag": "Search Flag",
+                "is_remote": "Remote"
             },
             hide_index=True,
             width="stretch",
