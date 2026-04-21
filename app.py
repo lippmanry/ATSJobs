@@ -111,6 +111,7 @@ def load_data():
 
 try:
     df = load_data().copy()
+    df = df.sort_values(by='date_posted', ascending=False).reset_index(drop=True)
     df["is_remote"] = df["is_remote"].map({True: "True", False: "False"})
     df["is_remote"] = df["is_remote"].fillna("Unkown")
     df["is_remote"] = df["is_remote"].replace(["None"], "Unknown")
