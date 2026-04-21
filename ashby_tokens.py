@@ -91,3 +91,6 @@ def ashby_new_tokens():
         time.sleep(wait_time)
     print(f"Total unique tokens found: {len(new_tokens)}")
     return list(new_tokens)
+
+if __name__ == "__main__":
+    ashby_new_tokens()
