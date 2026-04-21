@@ -177,13 +177,14 @@ try:
             df = df[df['is_remote'] == "True"]
 
         
-        df = df.sort_values(by='date_posted', ascending=False).reset_index(drop=True)
+        display_df = df.copy()
+        display_df['date_posted'] = display_df['date_posted'].dt.strftime('%Y-%m-%d %H:%M')
 
 
         st.write(f"Showing {len(df)} jobs found from job database.")
         
         st.dataframe(
-            df[column_order].style.set_properties(**{'color': '#93FF35'}, subset=['url']),
+            display_df[column_order].style.set_properties(**{'color': '#93FF35'}, subset=['url']),
             column_config={
                 "url": st.column_config.LinkColumn("Url", display_text="View Job ↗"), 
                 "salary_range": "Salary (Local)",
