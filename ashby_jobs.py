@@ -210,8 +210,9 @@ def process_single_token(token, session, ryan_loc, mik_loc, ryan_keywords, mik_k
                     print(f"    > Processed {index}/{total_jobs_found}")
             
                 title = job.get('title', '').lower()
-                workplace = job.get('workplaceType') or ""
-                is_remote = True if "remote" in workplace.lower() or job.get('isRemote') == True else False
+                primary_loc = (job.get('location') or "").lower()
+                workplace = (job.get('workplaceType') or "").lower()
+                is_remote = True if "remote" in workplace or "remote" in primary_loc or job.get('isRemote') == True else False
                 # date_posted = job.get('publishedAt')
                 
 
@@ -222,7 +223,7 @@ def process_single_token(token, session, ryan_loc, mik_loc, ryan_keywords, mik_k
                 location = country_handler(job)
                 
                 #locations
-                primary_loc = job.get('location', '').lower()
+                
                 secondary_loc = job.get('secondaryLocations') or []
                 
                 loc_strings = []
