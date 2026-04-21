@@ -179,6 +179,10 @@ try:
 
         st.write(f"Showing {len(df)} jobs found from job database.")
         
+        display_df = df.copy()
+        display_df['date_posted'] = display_df['date_posted'].dt.strftime('%Y-%m-%d %H:%M:%S')
+        df = display_df.copy()
+        
         st.dataframe(
             df[column_order].style.set_properties(**{'color': '#93FF35'}, subset=['url']),
             column_config={
