@@ -92,8 +92,14 @@ def load_data():
     df_lever = pd.DataFrame(lever_data)
     df_lever['source'] = 'Lever'
     
+    #ashby
+    ashby_collection = db ['ashby_jobs']
+    ashby_data = list (ashby_collection.find({}, {"_id":0}))
+    df_ashby = pd.DataFrame(ashby_data)
+    df_ashby['source'] = 'Ashby'
+    
     #combined
-    combined_df = pd.concat([df_adzuna, df_greenhouse, df_lever], ignore_index=True)
+    combined_df = pd.concat([df_adzuna, df_greenhouse, df_lever, df_ashby], ignore_index=True)
 
     if 'date_posted' in combined_df.columns:
         combined_df['date_posted'] = pd.to_datetime(combined_df['date_posted'], utc=True, errors='coerce')
