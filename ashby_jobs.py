@@ -212,7 +212,7 @@ def process_single_token(token, session, ryan_loc, mik_loc, ryan_keywords, mik_k
                 title = job.get('title', '').lower()
                 primary_loc = (job.get('location') or "").lower()
                 workplace = (job.get('workplaceType') or "").lower()
-                is_remote = True if "remote" in workplace or "remote" in primary_loc or job.get('isRemote') == True else False
+                is_remote = ("remote" in workplace or "remote" in primary_loc or job.get('isRemote') is True)
                 # date_posted = job.get('publishedAt')
                 
 
