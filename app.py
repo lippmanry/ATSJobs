@@ -165,7 +165,7 @@ try:
         
         #apply remote only filter
         if remote_selected:
-            df = df[df['is_remote'] == True]
+            df = df[df['is_remote'] == "True"]
 
         
         df = df.sort_values(by='date_posted', ascending=False)   
