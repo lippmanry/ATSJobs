@@ -175,10 +175,13 @@ def date_handler(posted_date):
         
         if posted_date.tzinfo is None:
             posted_date = posted_date.replace(tzinfo=timezone.utc)
-    
+        else:
+            posted_date = posted_date.astimezone(timezone.utc)
+                
         current_date = datetime.now(timezone.utc)
         delta = current_date - posted_date
         total_seconds = max(0, delta.total_seconds())
+
 
         if total_seconds < 3600:
             #less than 1 hr
