@@ -102,6 +102,7 @@ def load_data():
     combined_df = pd.concat([df_adzuna, df_greenhouse, df_lever, df_ashby], ignore_index=True)
 
     if 'date_posted' in combined_df.columns:
+        combined_df['date_posted'] = combined_df['date_posted'].astype(str).str.strip()
         combined_df['date_posted'] = pd.to_datetime(combined_df['date_posted'], utc=True, errors='coerce')
 
     return combined_df
@@ -177,11 +178,8 @@ try:
         
         df = df.sort_values(by='date_posted', ascending=False).reset_index(drop=True)
 
+
         st.write(f"Showing {len(df)} jobs found from job database.")
-        
-        display_df = df.copy()
-        display_df['date_posted'] = display_df['date_posted'].dt.strftime('%Y-%m-%d %H:%M:%S')
-        df = display_df.copy()
         
         st.dataframe(
             df[column_order].style.set_properties(**{'color': '#93FF35'}, subset=['url']),
