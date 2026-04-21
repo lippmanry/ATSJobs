@@ -196,10 +196,12 @@ try:
                 "time_since_posted": "Time Since Posted",
                 "search_flag": "Search Flag",
                 "is_remote": "Remote"
+                
             },
             hide_index=True,
             width="stretch",
-            height=900
+            height=900,
+            key="job_board_v1"
         )
     else:
         st.warning("No data found in the database. Run your api calls first!")
