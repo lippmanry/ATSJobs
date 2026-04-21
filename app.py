@@ -103,14 +103,13 @@ def load_data():
 
     if 'date_posted' in combined_df.columns:
         combined_df['date_posted'] = pd.to_datetime(combined_df['date_posted'], utc=True, errors='coerce')
-        combined_df = combined_df.sort_values(by='date_posted', ascending=False)
-        combined_df = combined_df.reset_index(drop=True)
+
     return combined_df
 
 
 
 try:
-    df = load_data()
+    df = load_data().copy()
     df["is_remote"] = df["is_remote"].map({True: "True", False: "False"})
     df["is_remote"] = df["is_remote"].fillna("Unkown")
     df["is_remote"] = df["is_remote"].replace(["None"], "Unknown")
@@ -176,11 +175,10 @@ try:
             df = df[df['is_remote'] == "True"]
 
         
-        df = df.sort_values(by='date_posted', ascending=False).reset_index(drop=True)   
+        df = df.sort_values(by='date_posted', ascending=False).reset_index(drop=True)
 
         st.write(f"Showing {len(df)} jobs found from job database.")
         
-
         st.dataframe(
             df[column_order].style.set_properties(**{'color': '#93FF35'}, subset=['url']),
             column_config={
