@@ -176,7 +176,7 @@ try:
             df = df[df['is_remote'] == "True"]
 
         
-        df = df.sort_values(by='date_posted', ascending=False)   
+        df = df.sort_values(by='date_posted', ascending=False).reset_index(drop=True)   
 
         st.write(f"Showing {len(df)} jobs found from job database.")
         
