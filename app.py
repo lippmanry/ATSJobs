@@ -103,6 +103,7 @@ def load_data():
 
     if 'date_posted' in combined_df.columns:
         combined_df['date_posted'] = pd.to_datetime(combined_df['date_posted'], utc=True, errors='coerce')
+        combined_df = combined_df.sort_values(by='date_posted', ascending=False, na_position='last')
     return combined_df
 
 
