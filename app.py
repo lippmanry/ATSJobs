@@ -164,7 +164,7 @@ try:
         search = st.sidebar.text_input("Search", "")        
         #apply job title search
         if search:
-            df = df[df['job_title'].str.contains(search, case=False, na=False) | df['description'].str.contains(search, case=False, na=False)]
+            df = df[df['job_title'].str.contains(search, case=False, na=False) | df['description'].str.contains(search, case=False, na=False) | df['company'].str.contains(search, case=False, na=False)]
         
         #remote only filter
         remote_selected = st.sidebar.checkbox("Remote only",value=False, help="This will exclude 'Unknown' values.")
