@@ -184,7 +184,7 @@ def location_validator(targets, strings):
 def process_single_token(token, session, ryan_loc, mik_loc, ryan_keywords, mik_keywords):
     total_saved = 0
     job_list = []
-    token = token
+    token = token.lower().strip()
     url = f"https://api.ashbyhq.com/posting-api/job-board/{token}?includeCompensation=true"
     
     try:
@@ -300,7 +300,7 @@ def process_single_token(token, session, ryan_loc, mik_loc, ryan_keywords, mik_k
                         salary_range_usd = "Not given"
                     
                     search_flag = ryan_match_word if ryan_match else mik_match_word
-                    
+                    job_url = job.get('jobUrl', '')
                     
                     extracted_fields = {
                         "job_id": job_id,
@@ -314,6 +314,7 @@ def process_single_token(token, session, ryan_loc, mik_loc, ryan_keywords, mik_k
                         "employment_type": job.get('employmentType'),
                         "salary_range": salary_range,
                         "salary_range_usd": salary_range_usd,
+                        "url": job_url,
                         "description": desc,
                         "search_flag": search_flag,
                         "last_scanned": datetime.now(timezone.utc)
