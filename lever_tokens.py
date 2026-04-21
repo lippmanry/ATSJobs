@@ -12,10 +12,9 @@ from dotenv import load_dotenv
 from pymongo import MongoClient, UpdateOne
 from datetime import datetime
 import os
-
-#inits
 from urllib.parse import quote_plus
 
+#inits
 load_dotenv(override=True)
 mongo_uri = os.getenv('MONGO_URI')
 client = MongoClient(mongo_uri)
