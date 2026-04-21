@@ -184,7 +184,7 @@ def location_validator(targets, strings):
 def process_single_token(token, session, ryan_loc, mik_loc, ryan_keywords, mik_keywords):
     total_saved = 0
     job_list = []
-    token = token.lower().strip()
+    token = token
     url = f"https://api.ashbyhq.com/posting-api/job-board/{token}?includeCompensation=true"
     
     try:
@@ -215,7 +215,7 @@ def process_single_token(token, session, ryan_loc, mik_loc, ryan_keywords, mik_k
                 # date_posted = job.get('publishedAt')
                 
 
-                company = token
+                company = token.lower().strip()
                 job_id = str(company) + ":" + str(job.get('id'))
                 
                 #country handler
