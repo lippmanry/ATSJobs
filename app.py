@@ -9,6 +9,10 @@ load_dotenv(override=True)
 
 MONGO_URI = st.secrets["mongo"]["MONGO_URI"] or os.getenv("MONGO_URI")
 
+#page setup
+st.set_page_config(page_title="Jobs", 
+                    layout="wide")
+st.title("Datacat Job Search")
 #change selectbox border color on dropdown
 st.markdown(
     """
@@ -60,10 +64,7 @@ st.markdown(
     
 )
 
-#page setup
-st.set_page_config(page_title="Jobs", 
-                    layout="wide")
-st.title("Datacat Job Search")
+
 
 
 
@@ -159,6 +160,12 @@ try:
         if search:
             df = df[df['job_title'].str.contains(search, case=False, na=False) | df['description'].str.contains(search, case=False, na=False)]
         
+        #remote only filter
+        remote_selected = st.sidebar.checkbox("Remote only",value=False, help="This will exclude 'Unknown' values.")
+        
+        #apply remote only filter
+        if remote_selected:
+            df = df[df['is_remote'] == True]
 
         
         df = df.sort_values(by='date_posted', ascending=False)   
