@@ -1,15 +1,9 @@
 
 #company search
-import re
 import time
-import logging
 from datetime import datetime, timezone, timedelta
 import random
 import requests
-from hdx.location.country import Country
-from hdx.location.currency import Currency
-from dateutil import parser
-from bs4 import BeautifulSoup
 from dotenv import load_dotenv
 from pymongo import MongoClient, UpdateOne
 import os
@@ -17,13 +11,17 @@ from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 from concurrent.futures import ThreadPoolExecutor
 from functools import partial
+from utils import (desc_cleanup,  
+                format_salary_range, 
+                location_validator, 
+                date_handler,
+                build_lever_url,
+                fix_pay)
 
 
 
 #inits
 load_dotenv(override=True)
-Currency.setup(fallback_historic_to_current=True, fallback_current_to_static=True, log_level=logging.INFO)
-
 
 mongo_uri = os.getenv('MONGO_URI')
 client = MongoClient(mongo_uri)
@@ -31,153 +29,7 @@ db = client['all_jobs']
 token_collection = db['lever_tokens']
 collection = db['lever_jobs']
 
-def get_currency(country_input):
-    try:
-        country_holder = Country.get_iso3_country_code_fuzzy(country_input)
-        iso_code, is_valid = country_holder
-        currency_code = Country.get_currency_from_iso3(iso_code)
-        
-        return currency_code if currency_code else 'USD'
-    except Exception:
-        pass
-def fix_pay(html_desc, country_input):
-    target_currency = get_currency(country_input)
-    
-    #make soups
-    soup = BeautifulSoup(html_desc, 'html.parser')
-    text_content = soup.get_text(separator=' ')
-    
-    #begin fix
-    lower_text = text_content.lower()
-    keyword_index = lower_text.rfind('salary')
-    if keyword_index == -1:
-        keyword_index = lower_text.rfind('compensation')
-    if keyword_index != -1:
-        search_window = text_content[keyword_index : keyword_index + 200]
-    else:
-        search_window = text_content
-    #end fix
-    
-    #match all numbers in the ranges
-    number_pattern = r'\$\s*([\d,]+)'
-    
-    match = re.findall(number_pattern, search_window)
-    if not match:
-        return None
-    
-    all_values =[float(val.replace(',', '')) for val in match]
-    salary_values = [v for v in all_values if v > 10000]
-    if not salary_values:
-        return None
-    
-    min_pay = min(salary_values)
-    max_pay = max(salary_values)
-    
-    return {
-        'min': min_pay,
-        'max': max_pay,
-        'currency': target_currency
-    }
-def date_handler(posted_date):
-    if not posted_date:
-        return 'Not given', float('inf')
-    try:
-        if isinstance(posted_date, (int, float)):
-            posted_date = datetime.fromtimestamp(posted_date / 1000, tz=timezone.utc)
-        else:
-            posted_date = parser.isoparse(posted_date)
-            if posted_date.tzinfo is None:
-                posted_date = posted_date.replace(tzinfo=timezone.utc)
-        iso_string = posted_date.isoformat(timespec='seconds')
-        current_date = datetime.now(timezone.utc)
-        delta = current_date - posted_date
-        total_seconds = max(0, delta.total_seconds())
 
-        if total_seconds < 3600:
-            #less than 1 hr
-            minutes = int(total_seconds // 60)
-            time_since = f'{minutes} min ago'
-        elif total_seconds < 86400:
-            #less than 1 day
-            hours = int(total_seconds // 3600)
-            time_since = f'{hours} hours ago'
-        else:
-            #more than 1 day
-            time_since = f'{delta.days} days ago'
-        
-
-    except Exception as e:
-        print(f'Error with date: {e}')
-        return 'Unknown', float('inf')
-
-    return time_since, iso_string
-def format_usd(val, currency):
-    if isinstance(val, (int, float)) and currency:
-        try:
-            usd_val = Currency.get_current_value_in_usd(val, currency)
-            
-            if usd_val is not None:
-                return f'{usd_val:,.2f}'
-        
-        except Exception:
-            pass
-        
-    return 'Not given'
-def format_salary_range(min_val, max_val, currency, is_usd=False):
-    if is_usd:
-        s_min = format_usd(min_val, currency)
-        s_max = format_usd(max_val, currency)
-        suffix = 'USD'
-    else:
-        s_min = f'{min_val:,.2f}' if isinstance(min_val, (int, float)) else 'Not given'
-        s_max = f'{max_val:,.2f}' if isinstance(max_val, (int, float)) else 'Not given'
-        suffix = currency
-    
-    if s_min == 'Not given' and s_max == 'Not given':
-        return 'Not given'
-    return f'{s_min} - {s_max} {suffix}'
-def build_lever_url(token, region):
-    base = "api.eu.lever.co" if region == "eu" else "api.lever.co"
-    base_url = f"https://{base}/v0/postings/{token}"
-    return base_url
-#cleanup job description
-def desc_cleanup(content):
-    if not content or not isinstance(content, str):
-        return 'Not given'
-    try:
-        soup = BeautifulSoup(content, 'html.parser')
-        #we don't care about the headers for this. it's parsed elsewhere and could be a job or company description
-        for junk in soup(['script', 'style','h1','h2','h3','h4','h5','h6']):
-            junk.decompose()
-            
-        text = soup.get_text(separator=' ')
-        clean_text = re.sub(r'<[^>]+>', ' ', text)
-        
-        words = clean_text.split()
-        final_string = ' '.join(words)
-        
-        return final_string if final_string else 'Not given'
-        
-    except Exception as e:
-        return f'Error parsing html description: {e}'
-    
-def location_validator(targets, strings):
-    
-    combined = " ".join(strings).lower()
-    
-    #global position checker
-    if "global" in combined:
-        return True
-    
-    #specific countries
-    if any(t in combined for t in targets):
-        return True
-    
-    #remote only with targets
-    if combined.strip() == "remote":
-        return True
-    
-    return False
 
 
 def process_single_token(item, session, ryan_loc, mik_loc, ryan_keywords, mik_keywords):
@@ -371,23 +223,7 @@ def process_single_token(item, session, ryan_loc, mik_loc, ryan_keywords, mik_ke
         print(f"An error has occurred for token {token}: {e}")
         traceback.print_exc()
         return 0
-def location_validator(targets, strings):
-    
-    combined = " ".join(strings).lower()
-    
-    #global position checker
-    if "global" in combined:
-        return True
-    
-    #specific countries
-    if any(t in combined for t in targets):
-        return True
-    
-    #remote only with targets
-    if combined.strip() == "remote":
-        return True
-    
-    return False
+
 
 def lever_jobs():
     

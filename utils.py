@@ -211,3 +211,9 @@ def country_handler(job):
     loc_string = job.get('location', '')
     
     return country if (country and country.strip()) else (loc_string or "Not given")
+
+#lever url builder
+def build_lever_url(token, region):
+    base = "api.eu.lever.co" if region == "eu" else "api.lever.co"
+    base_url = f"https://{base}/v0/postings/{token}"
+    return base_url
