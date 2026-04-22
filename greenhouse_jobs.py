@@ -141,7 +141,7 @@ def greenhouse_jobs():
                         time_since, updated_at = date_handler(updated_dt)
                         
                         if updated_at:
-                            days_old = (datetime.now(timezone.utc) - updated_dt).days
+                            days_old = (datetime.now(timezone.utc) - updated_at).days
                             if days_old > 45:
                                 continue
                         else:
