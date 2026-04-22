@@ -138,7 +138,9 @@ def date_handler(posted_date):
     if not posted_date:
         return 'Not given', None
     try:
-        if isinstance(posted_date, (int, float)):
+        if isinstance(posted_date, datetime):
+            pass
+        elif isinstance(posted_date, (int, float)):
             posted_date = datetime.fromtimestamp(posted_date / 1000, tz=timezone.utc)
         else:
             posted_date = parser.isoparse(posted_date)
