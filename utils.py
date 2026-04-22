@@ -199,3 +199,15 @@ def remote_checker(loc_list):
             if 'non-remote' not in loc_lower:
                 return True
     return False
+
+#ashby specific country handler
+def country_handler(job):
+    address =  job.get('address') or {}
+    postal = address.get('postalAddress') or {}
+    country = postal.get('addressCountry')
+    
+    if country and country.strip():
+        return country.strip()
+    loc_string = job.get('location', '')
+    
+    return country if (country and country.strip()) else (loc_string or "Not given")
