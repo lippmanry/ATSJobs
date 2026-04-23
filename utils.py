@@ -10,10 +10,7 @@ from dotenv import load_dotenv
 from pymongo import MongoClient, UpdateOne
 from ddgs import DDGS
 import pandas as pd
-import os
-MONGO_URI = os.getenv("MONGO_URI")
-client = MongoClient(MONGO_URI)
-db = client['all_jobs']
+
 
 
 #inits
@@ -329,7 +326,7 @@ def display_date_helper(ts):
         return f"{diff.days} days ago"
 
 #streamlit load and label helper    
-def load_and_label(collection_name, source_label):
+def load_and_label(db, collection_name, source_label):
     collection = db[collection_name]
     data = list(collection.find({}, {"_id": 0}))
     df = pd.DataFrame(data)
