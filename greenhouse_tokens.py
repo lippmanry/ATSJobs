@@ -107,8 +107,7 @@ def greenhouse_token_search(keyword, limit=10, start=0):
 #slow token discovery, add to mongo - 3 iterations via common keywords
 def greenhouse_new_tokens():
     #search for multiple industries via common operations
-    anchor_words = ["Analyst", "Developer", "Manager", "Operations", "Sales", "Engineer"]
-    
+    anchor_words = ["Analyst", "Developer", "Manager", "Operations", "Sales", "Engineer"]    
     locations = ["Canada", "United Kingdom", "UK", "Global", "Remote"]
     
     successful_runs = 0
