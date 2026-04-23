@@ -124,14 +124,10 @@ def process_single_token(item, session, ryan_loc, mik_loc, ryan_keywords, mik_ke
                 if ryan_match or mik_match:
 
                     #check posting age, filter out old posts
-                    created_at_ms = job.get('createdAt')
-                    if created_at_ms:
-                        created_dt = datetime.fromtimestamp(created_at_ms / 1000.0, tz=timezone.utc)
-                        if (datetime.now(timezone.utc) - created_dt).days > 45:
-                            continue
-                        
-                        
-                        time_since, date_posted = date_handler(job.get('createdAt'))
+                    time_since, days_old, date_posted = date_handler(job.get('createdAt'))
+                    if days_old is not None and days_old > 45:
+                        continue
+
                     all_locations = job.get('categories', {}).get('allLocations',[])
                     location = ", ".join(all_locations)
 

@@ -10,3 +10,4 @@ pymongo
 python-dotenv
 fake-useragent
 ddgs
+pandas
