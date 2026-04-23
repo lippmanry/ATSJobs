@@ -119,7 +119,7 @@ def process_single_token(token, session, ryan_loc, mik_loc, ryan_keywords, mik_k
                 
                 if ryan_match or mik_match:
                     if days_old is not None and days_old > 45:
-                                            continue
+                        continue
                     all_locations = ", ".join([loc.title() for loc in all_loc_strings])
                                         
                     desc = job.get('descriptionPlain', '')

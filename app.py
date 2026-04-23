@@ -66,51 +66,10 @@ st.markdown(
 )
 
 
-# def display_date_helper(ts):
-#     if pd.isna(ts): return "Unknown"
-#     now = pd.Timestamp.now(tz='UTC')
-#     diff = now - ts
-    
-#     if diff.total_seconds() < 3600:
-#         return f"{int(diff.total_seconds() // 60)} min ago"
-#     elif diff.total_seconds() < 86400:
-#         return f"{int(diff.total_seconds() // 3600)} hours ago"
-#     else:
-#         return f"{diff.days} days ago"
-
-
 @st.cache_data(ttl=600) 
 def load_data():
     client = MongoClient(MONGO_URI)
     db = client['all_jobs']
-    
-    # #adzuna datas
-    # adzuna_collection = db['adzuna_jobs']
-    # adzuna_data = list(adzuna_collection.find({}, {"_id":0}))
-    # df_adzuna = pd.DataFrame(adzuna_data)
-    # df_adzuna['source'] = 'Adzuna'
-    
-    # #ATS DATAS
-    # #greenhouse
-    # greenhouse_collection = db['greenhouse_jobs']
-    # greenhouse_data = list(greenhouse_collection.find({}, {"_id":0}))
-    # df_greenhouse = pd.DataFrame(greenhouse_data)
-    # df_greenhouse['source'] = 'Greenhouse'
-    
-    # #lever
-    # lever_collection = db['lever_jobs']
-    # lever_data = list(lever_collection.find({}, {"_id":0}))
-    # df_lever = pd.DataFrame(lever_data)
-    # df_lever['source'] = 'Lever'
-    
-    # #ashby
-    # ashby_collection = db ['ashby_jobs']
-    # ashby_data = list (ashby_collection.find({}, {"_id":0}))
-    # df_ashby = pd.DataFrame(ashby_data)
-    # df_ashby['source'] = 'Ashby'
-    
-    # #combined
-    # combined_df = pd.concat([df_adzuna, df_greenhouse, df_lever, df_ashby], ignore_index=True)
 
     sources = [
         ("adzuna_jobs", "Adzuna"),

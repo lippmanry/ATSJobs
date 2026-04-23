@@ -138,13 +138,9 @@ def greenhouse_jobs():
                             continue
                         
                         updated_dt = details.get('updated_at')
-                        time_since, updated_at = date_handler(updated_dt)
+                        time_since, days_old, updated_at = date_handler(updated_dt)
                         
-                        if updated_at:
-                            days_old = (datetime.now(timezone.utc) - updated_at).days
-                            if days_old > 45:
-                                continue
-                        else:
+                        if days_old is not None and days_old > 45:
                             continue
                         
                         # updated_dt = parser.isoparse(updated_at)
