@@ -126,3 +126,6 @@ def workday_new_tokens():
             wait_time = random.randint(30,60)
             print(f"No new tokens found for {query}. Trying new keywords in {wait_time}s...")
             time.sleep(wait_time)
+
+if __name__ == "__main__":
+    workday_new_tokens()
