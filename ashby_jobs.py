@@ -88,7 +88,7 @@ def process_single_token(token, session, ryan_loc, mik_loc, ryan_keywords, mik_k
                 
 
                 
-                time_since, date_posted = date_handler(job.get('publishedAt'))
+                time_since, days_old, date_posted = date_handler(job.get('publishedAt'))
                 
                 desc = job.get('descriptionPlain', '')
                 raw_content = f"{title} {desc}"
@@ -118,12 +118,8 @@ def process_single_token(token, session, ryan_loc, mik_loc, ryan_keywords, mik_k
                 mik_match = mik_key_match and (mik_loc_check or (is_remote and mik_target_in_soup))
                 
                 if ryan_match or mik_match:
-                    try:
-                        time_val = int(time_since) if time_since is not None else None
-                    except (ValueError, TypeError):
-                        time_val = None
-                    if time_val is not None and time_val > 45:
-                        continue
+                    if days_old is not None and days_old > 45:
+                                            continue
                     all_locations = ", ".join([loc.title() for loc in all_loc_strings])
                                         
                     desc = job.get('descriptionPlain', '')
@@ -208,7 +204,7 @@ def ashby_jobs():
     })
     token_data = [t.get('token') for t in active_tokens if t.get('token')]
     
-    ryan_keywords = ["cybersecurity", "siem", "splunk", "threat", "vulnerability", "security engineer", "security analyst"]
+    ryan_keywords = ["cybersecurity", "siem", "splunk", "threat", "vulnerability", "security engineer", "security analyst", "security risk", "security metric"]
     mik_keywords = ["frontend", "frontend developer", "front-end", "vue", "product engineer"]
     
     ryan_loc = ["canada", "ontario"]

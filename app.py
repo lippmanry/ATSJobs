@@ -6,6 +6,7 @@ import os
 from dotenv import load_dotenv
 from pymongo import MongoClient
 load_dotenv(override=True)
+from utils import display_date_helper, load_and_label
 
 MONGO_URI = st.secrets["mongo"]["MONGO_URI"] or os.getenv("MONGO_URI")
 
@@ -65,17 +66,17 @@ st.markdown(
 )
 
 
-def display_date_helper(ts):
-    if pd.isna(ts): return "Unknown"
-    now = pd.Timestamp.now(tz='UTC')
-    diff = now - ts
+# def display_date_helper(ts):
+#     if pd.isna(ts): return "Unknown"
+#     now = pd.Timestamp.now(tz='UTC')
+#     diff = now - ts
     
-    if diff.total_seconds() < 3600:
-        return f"{int(diff.total_seconds() // 60)} min ago"
-    elif diff.total_seconds() < 86400:
-        return f"{int(diff.total_seconds() // 3600)} hours ago"
-    else:
-        return f"{diff.days} days ago"
+#     if diff.total_seconds() < 3600:
+#         return f"{int(diff.total_seconds() // 60)} min ago"
+#     elif diff.total_seconds() < 86400:
+#         return f"{int(diff.total_seconds() // 3600)} hours ago"
+#     else:
+#         return f"{diff.days} days ago"
 
 
 @st.cache_data(ttl=600) 
@@ -83,34 +84,44 @@ def load_data():
     client = MongoClient(MONGO_URI)
     db = client['all_jobs']
     
-    #adzuna datas
-    adzuna_collection = db['adzuna_jobs']
-    adzuna_data = list(adzuna_collection.find({}, {"_id":0}))
-    df_adzuna = pd.DataFrame(adzuna_data)
-    df_adzuna['source'] = 'Adzuna'
+    # #adzuna datas
+    # adzuna_collection = db['adzuna_jobs']
+    # adzuna_data = list(adzuna_collection.find({}, {"_id":0}))
+    # df_adzuna = pd.DataFrame(adzuna_data)
+    # df_adzuna['source'] = 'Adzuna'
     
-    #ATS DATAS
-    #greenhouse
-    greenhouse_collection = db['greenhouse_jobs']
-    greenhouse_data = list(greenhouse_collection.find({}, {"_id":0}))
-    df_greenhouse = pd.DataFrame(greenhouse_data)
-    df_greenhouse['source'] = 'Greenhouse'
+    # #ATS DATAS
+    # #greenhouse
+    # greenhouse_collection = db['greenhouse_jobs']
+    # greenhouse_data = list(greenhouse_collection.find({}, {"_id":0}))
+    # df_greenhouse = pd.DataFrame(greenhouse_data)
+    # df_greenhouse['source'] = 'Greenhouse'
     
-    #lever
-    lever_collection = db['lever_jobs']
-    lever_data = list(lever_collection.find({}, {"_id":0}))
-    df_lever = pd.DataFrame(lever_data)
-    df_lever['source'] = 'Lever'
+    # #lever
+    # lever_collection = db['lever_jobs']
+    # lever_data = list(lever_collection.find({}, {"_id":0}))
+    # df_lever = pd.DataFrame(lever_data)
+    # df_lever['source'] = 'Lever'
     
-    #ashby
-    ashby_collection = db ['ashby_jobs']
-    ashby_data = list (ashby_collection.find({}, {"_id":0}))
-    df_ashby = pd.DataFrame(ashby_data)
-    df_ashby['source'] = 'Ashby'
+    # #ashby
+    # ashby_collection = db ['ashby_jobs']
+    # ashby_data = list (ashby_collection.find({}, {"_id":0}))
+    # df_ashby = pd.DataFrame(ashby_data)
+    # df_ashby['source'] = 'Ashby'
     
-    #combined
-    combined_df = pd.concat([df_adzuna, df_greenhouse, df_lever, df_ashby], ignore_index=True)
+    # #combined
+    # combined_df = pd.concat([df_adzuna, df_greenhouse, df_lever, df_ashby], ignore_index=True)
 
+    sources = [
+        ("adzuna_jobs", "Adzuna"),
+        ("greenhouse_jobs", "Greenhouse"),
+        ("lever_jobs", "Lever"),
+        ("ashby_jobs", "Ashby"),
+        ("workable_board_jobs", "Workable")
+    ]
+    dfs = [load_and_label(coll, label) for coll, label in sources]
+    combined_df = pd.concat(dfs, ignore_index=True)
+    
     if 'date_posted' in combined_df.columns:
         combined_df['date_posted'] = pd.to_datetime(combined_df['date_posted'], utc=True, errors='coerce')
         combined_df = combined_df.dropna(subset=['date_posted'])
@@ -175,7 +186,7 @@ try:
             df = df[df['source'].isin(selected_source)]
         
         #search job titles OR description for key words
-        search = st.sidebar.text_input("Search", "")        
+        search = st.sidebar.text_input("Search text", "")        
         #apply job search
         if search:
             df = df[df['job_title'].str.contains(search, case=False, na=False) | df['description'].str.contains(search, case=False, na=False) | df['company'].str.contains(search, case=False, na=False)]

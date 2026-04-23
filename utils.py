@@ -7,7 +7,13 @@ from hdx.location.currency import Currency
 from dateutil import parser
 from bs4 import BeautifulSoup
 from dotenv import load_dotenv
-
+from pymongo import MongoClient, UpdateOne
+from ddgs import DDGS
+import pandas as pd
+import os
+MONGO_URI = os.getenv("MONGO_URI")
+client = MongoClient(MONGO_URI)
+db = client['all_jobs']
 
 
 #inits
@@ -134,6 +140,7 @@ def location_validator(targets, strings):
     return False
 
 #handle various date formats
+#handle various date formats
 def date_handler(posted_date):
     if not posted_date:
         return 'Not given', None
@@ -154,7 +161,10 @@ def date_handler(posted_date):
         current_date = datetime.now(timezone.utc)
         delta = current_date - posted_date
         total_seconds = max(0, delta.total_seconds())
-
+        
+        #raw int for match handling and stale posts
+        days_int = delta.days
+        
         if total_seconds < 3600:
             #less than 1 hr
             minutes = int(total_seconds // 60)
@@ -167,12 +177,12 @@ def date_handler(posted_date):
             #more than 1 day
             time_since = f'{delta.days} days ago'
         
-
+        posted_date = posted_date.isoformat()
     except Exception as e:
         print(f'Error with date: {e}')
-        return 'Unknown', None
+        return 'Unknown', None, None
 
-    return time_since, posted_date
+    return time_since, days_int, posted_date
 
 #greenhouse specific (for now) detail getter
 def job_detail_getter(token, job_id, headers):
@@ -217,3 +227,114 @@ def build_lever_url(token, region):
     base = "api.eu.lever.co" if region == "eu" else "api.lever.co"
     base_url = f"https://{base}/v0/postings/{token}"
     return base_url
+
+#mongo token saver
+def save_tokens_mongo(tokens, token_collection):
+    ops = []
+    for token in tokens:
+        ops.append(UpdateOne(
+            {'token': token},
+                {
+                '$setOnInsert': {
+                    'is_active': True,
+                    'failures': 0,
+                    'priority': False
+                },
+                '$set': {
+                    'last_seen_by_SE': datetime.now()
+                    }
+                },
+            upsert=True
+            )
+        )
+    if ops:
+        token_collection.bulk_write(ops)
+
+#reusable token search for DDG
+def ddg_token_search(site, keyword):
+    tokens = set()
+    query = f'site:{site} {keyword}'
+    print(f"Searching DDG for {query}")
+    
+    system_blacklist = {'embed', 'search', 'v1', 'd', 'api', 'js', 'widgets', 'careers'}
+    pattern = rf"{re.escape(site)}/([^/&?#]+)"
+    
+    with DDGS() as ddgs:
+        results = ddgs.text(query, max_results=20)
+        for r in results:
+            url = r['href']
+            match = re.search(pattern, url)
+            if match:
+                token = match.group(1).lower()
+                if token not in system_blacklist:
+                    tokens.add(token)
+    return list(tokens)
+def salary_handler(text, country):
+    min_v = max_v = currency = None
+    salary_range = salary_range_usd = "Not given"
+    regex_pay = fix_pay(text, country)
+    if regex_pay:
+        min_v = regex_pay['min']
+        max_v = regex_pay['max']
+        currency = regex_pay['currency']        
+        salary_range = format_salary_range(min_v, max_v, currency)
+        salary_range_usd = format_salary_range(min_v, max_v, currency, is_usd=True)
+    
+    return salary_range, salary_range_usd
+#reusable job matching function
+def job_matching(target_locs, target_keywords, all_loc_strings, title, depts, is_remote,content=None):
+    search_depts = [str(d).lower() for d in depts if d] if depts else []
+    title_lower = str(title).lower() if title else ""
+    
+    #check title first
+    title_dept_match = next((k for k in target_keywords if k in title_lower or any(k in d for d in search_depts)), None)
+    
+    content_match = None
+    if content and not title_dept_match:
+        content_lower = str(content).lower() 
+        content_match = next((k for k in target_keywords if k in content_lower), None)
+    
+    match_word = title_dept_match or content_match
+    if not match_word:
+        return False, None
+    
+    #check targeted locations
+    loc_check = location_validator(target_locs, all_loc_strings)
+    
+    target_in_soup = any(any(t in loc_str.lower() for t in target_locs) for loc_str in all_loc_strings)
+    
+    is_match = False
+    
+    #check matches
+    if title_dept_match:
+            if loc_check or (is_remote and target_in_soup):
+                is_match = True
+    elif content_match:
+        if loc_check:
+            is_match = True
+
+    return is_match, match_word
+
+#for streamlit - adjusting dates to display properly, not by when the script ran
+def display_date_helper(ts):
+    if pd.isna(ts): return "Unknown"
+    now = pd.Timestamp.now(tz='UTC')
+    diff = now - ts
+    
+    if diff.total_seconds() < 3600:
+        return f"{int(diff.total_seconds() // 60)} min ago"
+    elif diff.total_seconds() < 86400:
+        return f"{int(diff.total_seconds() // 3600)} hours ago"
+    else:
+        return f"{diff.days} days ago"
+
+#streamlit load and label helper    
+def load_and_label(collection_name, source_label):
+    collection = db[collection_name]
+    data = list(collection.find({}, {"_id": 0}))
+    df = pd.DataFrame(data)
+    
+    if not df.empty:
+        df['source'] = source_label
+        
+    return df
