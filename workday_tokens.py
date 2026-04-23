@@ -30,8 +30,10 @@ def get_driver():
     options.add_argument('--headless')  
     options.add_argument('--no-sandbox')
     options.add_argument('--disable-dev-shm-usage')
+    options.add_argument('--disable-gpu')
     options.add_argument('--window-size=1920,1080')
-    driver = uc.Chrome(options=options)
+    options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36")
+    driver = uc.Chrome(options=options, use_subprocess=True)
     
     return driver
 
@@ -51,6 +53,7 @@ def workday_token_search(keyword, limit=10, start=0, gl="ca"):
         time.sleep(random.uniform(2, 4))
         
         search_url = f"https://www.google.com/search?q={query}&num={limit}&gl={gl}&start={start}"
+        # ddg_search_url = f"https://duckduckgo.com/html/?q=site:myworkdayjobs.com+{query}"
         driver.get(search_url)
         if "Forbidden" in driver.title or "403" in driver.title:
             print(f"Still getting 403. Wait.")
@@ -71,11 +74,14 @@ def workday_token_search(keyword, limit=10, start=0, gl="ca"):
 
         
         time.sleep(random.uniform(7,12))
-        
+        try:
+            WebDriverWait(driver, 10).until(EC.title_contains("Search"))
+        except:
+            pass
         #emulate human scrolling to try and avoid scraper flag
         driver.execute_script(f"window.scrollBy(0, {random.randint(400,900)});")
 
-        
+        print(f"Page Title: {driver.title}")
         #find link elements
         links = driver.find_elements(By.XPATH, "//a[contains(@href, 'myworkdayjobs.com')]")
         
