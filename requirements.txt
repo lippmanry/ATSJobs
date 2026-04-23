@@ -11,3 +11,5 @@ python-dotenv
 fake-useragent
 ddgs
 pandas
+pyvirtualdisplay
+undetected-chromedriver
