@@ -65,7 +65,17 @@ st.markdown(
 )
 
 
-
+def display_date_helper(ts):
+    if pd.isna(ts): return "Unknown"
+    now = pd.Timestamp.now(tz='UTC')
+    diff = now - ts
+    
+    if diff.total_seconds() < 3600:
+        return f"{int(diff.total_seconds() // 60)} min ago"
+    elif diff.total_seconds() < 86400:
+        return f"{int(diff.total_seconds() // 3600)} hours ago"
+    else:
+        return f"{diff.days} days ago"
 
 
 @st.cache_data(ttl=600) 
@@ -113,6 +123,7 @@ try:
     df = load_data().copy()
     df = df.sort_values(by='date_posted', ascending=False).reset_index(drop=True)
     df["is_remote"] = df["is_remote"].map({True: "True", False: "False"})
+    df['time_since_posted'] = df['date_posted'].apply(display_date_helper)
     df["is_remote"] = df["is_remote"].fillna("Unkown")
     df["is_remote"] = df["is_remote"].replace(["None"], "Unknown")
     if not df.empty:
