@@ -176,9 +176,14 @@ try:
         
         #search job titles OR description for key words
         search = st.sidebar.text_input("Search", "")        
-        #apply job title search
+        #apply job search
         if search:
             df = df[df['job_title'].str.contains(search, case=False, na=False) | df['description'].str.contains(search, case=False, na=False) | df['company'].str.contains(search, case=False, na=False)]
+        
+        #search by company only
+        company_search = st.sidebar.text_input("Search by Company", "")
+        if company_search:
+            df = df[df['company'].str.contains(company_search, case=False, na=False)]
         
         #remote only filter
         remote_selected = st.sidebar.checkbox("Remote only",value=False, help="This will exclude 'Unknown' values.")
