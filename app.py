@@ -119,7 +119,7 @@ def load_data():
         ("ashby_jobs", "Ashby"),
         ("workable_board_jobs", "Workable")
     ]
-    dfs = [load_and_label(coll, label) for coll, label in sources]
+    dfs = [load_and_label(db, coll, label) for coll, label in sources]
     combined_df = pd.concat(dfs, ignore_index=True)
     
     if 'date_posted' in combined_df.columns:
