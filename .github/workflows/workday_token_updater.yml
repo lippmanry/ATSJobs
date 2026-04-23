@@ -49,4 +49,4 @@ jobs:
         env:
 
           MONGO_URI: ${{ secrets.MONGO_URI }}
-        run: xvfb-run --auto-servernum python workday_tokens.py
+        run: xvfb-run --auto-servernum --server-args="-screen 0 1920x1080x24" python -u workday_tokens.py
