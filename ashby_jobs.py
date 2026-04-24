@@ -3,7 +3,6 @@ import time
 from datetime import datetime, timezone, timedelta
 import random
 import requests
-
 from dotenv import load_dotenv
 from pymongo import MongoClient, UpdateOne
 import os
@@ -113,8 +112,7 @@ def process_single_token(profile, token, session):
                         continue
 
                     search_flag = match_word
-                    if days_old is not None and days_old > 45:
-                        continue                    
+           
                 #ryan's
                 # ryan_loc_check = location_validator(ryan_loc, all_loc_strings)
                 # ryan_target_in_soup = any(any(t in loc_str for t in ryan_loc) for loc_str in all_loc_strings)
@@ -212,9 +210,9 @@ def ashby_jobs():
     })
     token_data = [t.get('token') for t in active_tokens if t.get('token')]
     
-    ryan_keywords = ["cybersecurity", "siem", "splunk", "threat", "vulnerability", "security", "analytic", "incident"]
-    mik_keywords = ["frontend", "front end", "front-end", "vue", "product engineer", "design engineer", "web design"]
-    
+    ryan_keywords = ["cybersecurity", "siem", "splunk", "threat", "vulnerability", "security", "analytics engineer", "analytic", "incident", "risk", "junior software", "junior backend", "junior back end", "junior developer"]
+    mik_keywords = ["frontend", "front end", "front-end", "vue", "product engineer", "web design", "web developer"]
+        
     ryan_loc = ["canada", "ontario", "global"]
     mik_loc = ["united kingdom", "uk", "gb", "global"]
     profiles = [

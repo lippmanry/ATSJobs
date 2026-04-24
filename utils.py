@@ -119,7 +119,7 @@ def desc_cleanup(content):
         return f'Error parsing html description: {e}'
 
 def location_validator(targets, strings):
-    
+
     combined = " ".join(strings).lower()
     
     #global position checker
@@ -282,6 +282,9 @@ def salary_handler(text, country):
     return salary_range, salary_range_usd
 #reusable job matching function
 def job_matching(target_locs, target_keywords, all_loc_strings, title, depts, is_remote,content=None):
+    target_locs = list(target_locs) if target_locs else []
+    target_keywords = list(target_keywords) if target_keywords else []
+    all_loc_strings = list(all_loc_strings) if all_loc_strings else []
     search_depts = [str(d).lower() for d in depts if d] if depts else []
     title_lower = str(title).lower() if title else ""
     
