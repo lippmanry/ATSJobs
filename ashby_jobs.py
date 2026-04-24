@@ -242,16 +242,12 @@ def ashby_jobs():
                 ),
                 tasks
             ))
-        total_saved = sum(results)
-        session.close()
-        print(f"Total jobs saved: {total_saved}")
-        return total_saved
+    total_saved = sum(results)
+    session.close()
+    print(f"Total jobs saved: {total_saved}")
+    return total_saved
     
-    # with ThreadPoolExecutor(max_workers=5) as executor:
-    #     worker_func = partial(process_single_token, session=session, ryan_loc=ryan_loc, mik_loc=mik_loc, ryan_keywords=ryan_keywords, mik_keywords=mik_keywords)
-        
-    #     results = list(executor.map(worker_func, token_data))
-    #     print(f"Total jobs saved across all tokens: {sum(results)}")
+
 
 if __name__ == "__main__":
     ashby_jobs()

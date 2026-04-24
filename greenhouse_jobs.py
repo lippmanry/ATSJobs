@@ -232,10 +232,10 @@ def greenhouse_jobs():
                 ),
                 tasks
             ))
-        total_saved = sum(results)
-        session.close()
-        print(f"Total jobs saved: {total_saved}")
-        return total_saved
+    total_saved = sum(results)
+    session.close()
+    print(f"Total jobs saved: {total_saved}")
+    return total_saved
 
 
 if __name__ == "__main__":

@@ -9,11 +9,11 @@ from pymongo import MongoClient, UpdateOne
 import os
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from functools import partial
 from utils import (desc_cleanup,  
                 format_salary_range, 
-                location_validator, 
+                job_matching, 
                 date_handler,
                 build_lever_url,
                 fix_pay)
@@ -32,7 +32,7 @@ collection = db['lever_jobs']
 
 
 
-def process_single_token(item, session, ryan_loc, mik_loc, ryan_keywords, mik_keywords):
+def process_single_token(item, session, profile):
     total_saved = 0
     job_list = []
     token = item['token']
@@ -76,7 +76,7 @@ def process_single_token(item, session, ryan_loc, mik_loc, ryan_keywords, mik_ke
                 
                 # check content for keywords
                 raw_content = f"{title} {desc_plain} {add_plain} {list_content}"
-                clean_content = desc_cleanup(raw_content) or ""
+                clean_content = desc_cleanup(raw_content).strip() or ""
                 searchable_content = clean_content.lower()
                 
                 #job categories
@@ -102,27 +102,28 @@ def process_single_token(item, session, ryan_loc, mik_loc, ryan_keywords, mik_ke
                 
                 all_loc_strings = list(set([onsite_req, country_code] + clean_all_locations))
                 
-                #ryan's
-                ryan_loc_check = location_validator(ryan_loc, all_loc_strings)
-                ryan_target_in_soup = any(any(t in loc_str for t in ryan_loc) for loc_str in all_loc_strings)
+                # #ryan's
+                # ryan_loc_check = location_validator(ryan_loc, all_loc_strings)
+                # ryan_target_in_soup = any(any(t in loc_str for t in ryan_loc) for loc_str in all_loc_strings)
                 
-                mik_loc_check = location_validator(mik_loc, all_loc_strings)
-                mik_target_in_soup = any(any(t in loc_str for t in mik_loc) for loc_str in all_loc_strings)
+                # mik_loc_check = location_validator(mik_loc, all_loc_strings)
+                # mik_target_in_soup = any(any(t in loc_str for t in mik_loc) for loc_str in all_loc_strings)
                 
-                ryan_match_word = next((k for k in ryan_keywords if k in title or k in searchable_content or any(d and k in d for d in depts)), None)
-                ryan_key_match = any(k in title or k in searchable_content or any(d and k in d for d in depts) for k in ryan_keywords)
+                # ryan_match_word = next((k for k in ryan_keywords if k in title or k in searchable_content or any(d and k in d for d in depts)), None)
+                # ryan_key_match = any(k in title or k in searchable_content or any(d and k in d for d in depts) for k in ryan_keywords)
 
 
-                #mik's
-                mik_match_word = next((k for k in mik_keywords if k in title or k in searchable_content or any(d and k in d for d in depts)), None)
-                mik_key_match = any(k in title or k in searchable_content or any(d and k in d for d in depts) for k in mik_keywords)
+                # #mik's
+                # mik_match_word = next((k for k in mik_keywords if k in title or k in searchable_content or any(d and k in d for d in depts)), None)
+                # mik_key_match = any(k in title or k in searchable_content or any(d and k in d for d in depts) for k in mik_keywords)
 
-                ryan_match= ryan_key_match and (ryan_loc_check or (is_remote and ryan_target_in_soup))
+                # ryan_match= ryan_key_match and (ryan_loc_check or (is_remote and ryan_target_in_soup))
 
-                mik_match = mik_key_match and (mik_loc_check or (is_remote and mik_target_in_soup))
-                
-                if ryan_match or mik_match:
+                # mik_match = mik_key_match and (mik_loc_check or (is_remote and mik_target_in_soup))
 
+                is_match, match_word = job_matching(profile["locations"], profile["keywords"], all_loc_strings, title, depts, is_remote, content=None)
+                    
+                if is_match:
                     #check posting age, filter out old posts
                     time_since, days_old, date_posted = date_handler(job.get('createdAt'))
                     if days_old is not None and days_old > 45:
@@ -177,7 +178,7 @@ def process_single_token(item, session, ryan_loc, mik_loc, ryan_keywords, mik_ke
                     else:
                         salary_range = "Not given"        
                         salary_range_usd = "Not given"
-                    search_flag = ryan_match_word if ryan_match else mik_match_word    
+                    search_flag = match_word    
                     extracted_fields = {
                         "job_id": job_id,
                         "job_title": title,
@@ -230,30 +231,58 @@ def lever_jobs():
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36"
     })
     
-    active_tokens = token_collection.find({
+    active_tokens = list(token_collection.find({
     'is_active': True,
     '$or': [
         {'failures': {'$lt': 3}},
         {'last_scanned': {'$lt': datetime.now(timezone.utc) - timedelta(days=7)}}
     ]
-    })
+    }))
     token_data = [{
         'token': t.get('token'),
         'region': t.get('region')
         }
         for t in active_tokens if t.get('token')
     ]
-    ryan_keywords = ["cybersecurity", "siem", "splunk", "threat", "vulnerability", "security engineer", "security analyst"]
-    mik_keywords = ["frontend", "frontend developer", "front-end", "vue", "product engineer"]
+    ryan_keywords = ["cybersecurity", "siem", "splunk", "threat", "vulnerability", "security", "analytics engineer", "analytic", "incident", "risk", "junior software", "junior backend", "junior back end", "junior developer"]
+    mik_keywords = ["frontend", "front end", "front-end", "vue", "product engineer", "web design", "web developer"]
     
-    ryan_loc = ["canada", "ontario"]
-    mik_loc = ["united kingdom", "uk", "gb"]
+    ryan_loc = ["canada", "ontario", "global"]
+    mik_loc = ["united kingdom", "uk", "gb", "global"]
+    profiles = [
+    {
+        "name": "Ryan",
+        "keywords": ryan_keywords,
+        "locations": ryan_loc
+    },
+    {
+        "name": "Mik",
+        "keywords": mik_keywords,
+        "locations": mik_loc
+    }
+    ]
+    tasks = []
+    for item in token_data:
+        for person in profiles:
+            tasks.append((item, person))
     
     with ThreadPoolExecutor(max_workers=5) as executor:
-        worker_func = partial(process_single_token, session=session, ryan_loc=ryan_loc, mik_loc=mik_loc, ryan_keywords=ryan_keywords, mik_keywords=mik_keywords)
-        
-        results = list(executor.map(worker_func, token_data))
-        print(f"Total jobs saved across all tokens: {sum(results)}")
-                
+        futures = [
+            executor.submit(process_single_token,
+                            item=t[0],
+                            profile=t[1],
+                            session=session
+                            ) for t in tasks
+        ]
+        results = []
+        for future in as_completed(futures):
+            try:
+                res = future.result()
+                results.append(res if res is not None else 0)
+            except Exception as e:
+                print(f"An error has occurred: {e}")
+    total_saved = sum(results)
+    print(f"Total jobs saved: {total_saved}")
+    session.close()
 if __name__ == "__main__":
     lever_jobs()        
