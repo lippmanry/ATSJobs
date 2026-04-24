@@ -25,7 +25,7 @@ def workday_token_search(site, keyword):
     query = f'site:{site} {keyword}'
     print(f"Searching DDG for {query}")
     
-    system_blacklist = {'embed', 'search', 'v1', 'd', 'api', 'js', 'widgets', 'careers'}
+    system_blacklist = {'embed', 'search', 'v1', 'd', 'api', 'js', 'widgets', 'careers', 'www', 'myworkday', 'impl', 'preview'}
     pattern = r"([a-zA-Z0-9_-]+)\.(wd[0-9]+)\.myworkdayjobs\.com"
     
     with DDGS() as ddgs:

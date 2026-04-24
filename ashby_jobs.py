@@ -16,7 +16,8 @@ from utils import (desc_cleanup,
                 format_salary_range, 
                 location_validator, 
                 date_handler,
-                country_handler)
+                country_handler,
+                job_matching)
 
 
 #inits
@@ -27,10 +28,12 @@ db = client['all_jobs']
 token_collection = db['ashby_tokens']
 collection = db['ashby_jobs']
 
-def process_single_token(token, session, ryan_loc, mik_loc, ryan_keywords, mik_keywords):
+def process_single_token(profile, token, session):
     total_saved = 0
     job_list = []
     token = token
+
+    
     url = f"https://api.ashbyhq.com/posting-api/job-board/{token}?includeCompensation=true"
     
     try:
@@ -55,7 +58,7 @@ def process_single_token(token, session, ryan_loc, mik_loc, ryan_keywords, mik_k
                 if index % 100 == 0 and index > 0:
                     print(f"    > Processed {index}/{total_jobs_found}")
             
-                title = job.get('title', '').lower()
+                title = job.get('title', '').lower().strip()
                 primary_loc = (job.get('location') or "").lower()
                 workplace = (job.get('workplaceType') or "").lower()
                 is_remote = ("remote" in workplace or "remote" in primary_loc or job.get('isRemote') is True)
@@ -86,11 +89,7 @@ def process_single_token(token, session, ryan_loc, mik_loc, ryan_keywords, mik_k
                 all_loc_strings = [l.strip() for l in all_loc_strings if l]
                 
                 
-
-                
-                time_since, days_old, date_posted = date_handler(job.get('publishedAt'))
-                
-                desc = job.get('descriptionPlain', '')
+                desc = job.get('descriptionPlain', '').strip()
                 raw_content = f"{title} {desc}"
                 clean_content = desc_cleanup(raw_content) or ""
                 searchable_content = clean_content.lower()
@@ -101,31 +100,40 @@ def process_single_token(token, session, ryan_loc, mik_loc, ryan_keywords, mik_k
                 depts = [d for d in [team, dept] if d]
                 
                 #validators
-                
-                #ryan's
-                ryan_loc_check = location_validator(ryan_loc, all_loc_strings)
-                ryan_target_in_soup = any(any(t in loc_str for t in ryan_loc) for loc_str in all_loc_strings)
-                ryan_match_word = next((k for k in ryan_keywords if k in title or k in searchable_content or any(d and k in d for d in depts)), None)
-                ryan_key_match = any(k in title or k in searchable_content or any(d and k in d for d in depts) for k in ryan_keywords)
-                
-                #mik's
-                mik_loc_check = location_validator(mik_loc, all_loc_strings)
-                mik_target_in_soup = any(any(t in loc_str for t in mik_loc) for loc_str in all_loc_strings)
-                mik_match_word = next((k for k in mik_keywords if k in title or k in searchable_content or any(d and k in d for d in depts)), None)
-                mik_key_match = any(k in title or k in searchable_content or any(d and k in d for d in depts) for k in mik_keywords)
-                
-                ryan_match = ryan_key_match and (ryan_loc_check or (is_remote and ryan_target_in_soup))
-                mik_match = mik_key_match and (mik_loc_check or (is_remote and mik_target_in_soup))
-                
-                if ryan_match or mik_match:
+            
+                is_match, match_word = job_matching(
+                    profile["locations"],
+                    profile["keywords"],
+                    all_loc_strings,
+                    title, depts, is_remote, content=None
+                )
+                if is_match:
+                    time_since, days_old, date_posted = date_handler(job.get('publishedAt'))                           
                     if days_old is not None and days_old > 45:
                         continue
+
+                    search_flag = match_word
+                    if days_old is not None and days_old > 45:
+                        continue                    
+                #ryan's
+                # ryan_loc_check = location_validator(ryan_loc, all_loc_strings)
+                # ryan_target_in_soup = any(any(t in loc_str for t in ryan_loc) for loc_str in all_loc_strings)
+                # ryan_match_word = next((k for k in ryan_keywords if k in title or k in searchable_content or any(d and k in d for d in depts)), None)
+                # ryan_key_match = any(k in title or k in searchable_content or any(d and k in d for d in depts) for k in ryan_keywords)
+                
+                # #mik's
+                # mik_loc_check = location_validator(mik_loc, all_loc_strings)
+                # mik_target_in_soup = any(any(t in loc_str for t in mik_loc) for loc_str in all_loc_strings)
+                # mik_match_word = next((k for k in mik_keywords if k in title or k in searchable_content or any(d and k in d for d in depts)), None)
+                # mik_key_match = any(k in title or k in searchable_content or any(d and k in d for d in depts) for k in mik_keywords)
+                
+                # ryan_match = ryan_key_match and (ryan_loc_check or (is_remote and ryan_target_in_soup))
+                # mik_match = mik_key_match and (mik_loc_check or (is_remote and mik_target_in_soup))
+                
+                
+                    
                     all_locations = ", ".join([loc.title() for loc in all_loc_strings])
-                                        
-                    desc = job.get('descriptionPlain', '')
-                    raw_content = f"{title} {desc}"
-                    clean_content = desc_cleanup(raw_content) or ""
-                    searchable_content = clean_content.lower()
+
                     
                     comp = (job.get('compensation') or {}).get('summaryComponents') or []
                     salary_data = next((c for c in comp if c.get('compensationType') == 'Salary'), {})
@@ -142,7 +150,7 @@ def process_single_token(token, session, ryan_loc, mik_loc, ryan_keywords, mik_k
                         salary_range = "Not given"
                         salary_range_usd = "Not given"
                     
-                    search_flag = ryan_match_word if ryan_match else mik_match_word
+                    
                     job_url = job.get('jobUrl', '')
                     
                     extracted_fields = {
@@ -204,17 +212,48 @@ def ashby_jobs():
     })
     token_data = [t.get('token') for t in active_tokens if t.get('token')]
     
-    ryan_keywords = ["cybersecurity", "siem", "splunk", "threat", "vulnerability", "security engineer", "security analyst", "security risk", "security metric"]
-    mik_keywords = ["frontend", "frontend developer", "front-end", "vue", "product engineer"]
+    ryan_keywords = ["cybersecurity", "siem", "splunk", "threat", "vulnerability", "security", "analytic", "incident"]
+    mik_keywords = ["frontend", "front end", "front-end", "vue", "product engineer", "design engineer", "web design"]
     
-    ryan_loc = ["canada", "ontario"]
-    mik_loc = ["united kingdom", "uk", "gb"]
-    
-    with ThreadPoolExecutor(max_workers=5) as executor:
-        worker_func = partial(process_single_token, session=session, ryan_loc=ryan_loc, mik_loc=mik_loc, ryan_keywords=ryan_keywords, mik_keywords=mik_keywords)
+    ryan_loc = ["canada", "ontario", "global"]
+    mik_loc = ["united kingdom", "uk", "gb", "global"]
+    profiles = [
+    {
+        "name": "Ryan",
+        "keywords": ryan_keywords,
+        "locations": ryan_loc
+    },
+    {
+        "name": "Mik",
+        "keywords": mik_keywords,
+        "locations": mik_loc
+    }
+    ]
         
-        results = list(executor.map(worker_func, token_data))
-        print(f"Total jobs saved across all tokens: {sum(results)}")
+    tasks = []
+    for token in token_data:
+        for person in profiles:
+            tasks.append((token, person))
+
+    with ThreadPoolExecutor(max_workers=5) as executor:
+        results = list(executor.map(
+            lambda t: process_single_token(                
+                profile=t[1], 
+                token= t[0],
+                session=session
+                ),
+                tasks
+            ))
+        total_saved = sum(results)
+        session.close()
+        print(f"Total jobs saved: {total_saved}")
+        return total_saved
+    
+    # with ThreadPoolExecutor(max_workers=5) as executor:
+    #     worker_func = partial(process_single_token, session=session, ryan_loc=ryan_loc, mik_loc=mik_loc, ryan_keywords=ryan_keywords, mik_keywords=mik_keywords)
+        
+    #     results = list(executor.map(worker_func, token_data))
+    #     print(f"Total jobs saved across all tokens: {sum(results)}")
 
 if __name__ == "__main__":
     ashby_jobs()

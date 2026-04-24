@@ -127,8 +127,10 @@ def location_validator(targets, strings):
         return True
     
     #specific countries
-    if any(t in combined for t in targets):
-        return True
+    for t in targets:
+        pattern = rf"\b{re.escape(t)}\b"
+        if re.search(pattern, combined):
+            return True
     
     #remote only with targets
     if combined.strip() == "remote":
@@ -298,11 +300,15 @@ def job_matching(target_locs, target_keywords, all_loc_strings, title, depts, is
     #check targeted locations
     loc_check = location_validator(target_locs, all_loc_strings)
     
-    target_in_soup = any(any(t in loc_str.lower() for t in target_locs) for loc_str in all_loc_strings)
+    target_in_soup = False
+    for loc_str in all_loc_strings:
+        loc_lower = loc_str.lower()
+        if any(re.search(rf"\b{re.escape(t.lower())}\b", loc_lower) for t in target_locs):
+            target_in_soup = True
+            break
     
     is_match = False
-    
-    #check matches
+        #check matches
     if title_dept_match:
             if loc_check or (is_remote and target_in_soup):
                 is_match = True
