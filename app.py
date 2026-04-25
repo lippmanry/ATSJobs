@@ -163,6 +163,7 @@ try:
 
         
         display_df = df.copy()
+        display_df = display_df.sort_values(by='date_posted', ascending=False)
         display_df['date_posted'] = display_df['date_posted'].dt.strftime('%Y-%m-%d %H:%M')
 
 
