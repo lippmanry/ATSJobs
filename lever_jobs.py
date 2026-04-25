@@ -126,7 +126,7 @@ def process_single_token(item, session, profile):
                 if is_match:
                     #check posting age, filter out old posts
                     time_since, days_old, date_posted = date_handler(job.get('createdAt'))
-                    if days_old is not None and days_old > 45:
+                    if days_old is not None and days_old > 60:
                         continue
 
                     all_locations = job.get('categories', {}).get('allLocations',[])

@@ -118,12 +118,11 @@ try:
         st.sidebar.header("Filters")
         #return remote only roles
 
-
             
         #filter by search profile
         PROFILE_MAP ={
-            "Ryan": ["cybersecurity", "siem", "splunk", "threat", "vulnerability", "security engineer", "security analyst", "security", "information security"],
-            "Mik": ["frontend", "frontend developer", "front-end", "vue", "product engineer"]
+            "Ryan": ["cybersecurity", "siem", "splunk", "threat", "vulnerability", "security engineer", "security analyst", "security", "information security", "analytics engineer", "analytic", "incident", "risk", "junior software", "junior backend", "junior back end", "junior developer", "cti"],
+            "Mik": ["frontend", "frontend developer", "front-end", "vue", "product engineer", "web design", "web developer"]
         }
         profiles = list(PROFILE_MAP.keys())
         selected_profile = st.sidebar.selectbox("Search profile", ["all"] + profiles)

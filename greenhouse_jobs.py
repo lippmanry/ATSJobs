@@ -108,7 +108,7 @@ def process_single_token(profile, token, session):
                         continue
                     updated_dt = details.get('updated_at')
                     time_since, days_old, date_posted = date_handler(updated_dt)                           
-                    if days_old is not None and days_old > 45:
+                    if days_old is not None and days_old > 60:
                         continue
                     
 

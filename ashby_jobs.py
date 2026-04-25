@@ -108,7 +108,7 @@ def process_single_token(profile, token, session):
                 )
                 if is_match:
                     time_since, days_old, date_posted = date_handler(job.get('publishedAt'))                           
-                    if days_old is not None and days_old > 45:
+                    if days_old is not None and days_old > 60:
                         continue
 
                     search_flag = match_word

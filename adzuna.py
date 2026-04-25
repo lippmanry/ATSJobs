@@ -116,7 +116,7 @@ def process_jobs(session, app_id, app_key,
                     
                     if is_match:
                         time_since, days_old, posted_date = date_handler(created_str)
-                        if days_old is not None and days_old > 45:
+                        if days_old is not None and days_old > 60:
                             continue
 
                         search_flag = match_word 
