@@ -287,6 +287,15 @@ def job_matching(target_locs, target_keywords, all_loc_strings, title, depts, is
     all_loc_strings = list(all_loc_strings) if all_loc_strings else []
     search_depts = [str(d).lower() for d in depts if d] if depts else []
     title_lower = str(title).lower() if title else ""
+    content_lower = str(content).lower() if content else ""
+    
+    #blacklist some word combos
+    blacklist = ["security guard", "director", "mechanical design", "intern"]
+    for word in blacklist:
+        pattern = rf"\b{re.escape(word)}\b"
+        if re.search(pattern, title_lower):
+            print(f"Blacklisted by title: {word}")
+            return False, None
     
     #check title first
     title_dept_match = next((k for k in target_keywords if k in title_lower or any(k in d for d in search_depts)), None)
