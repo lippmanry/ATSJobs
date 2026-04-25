@@ -164,7 +164,7 @@ try:
         
         display_df = df.copy()
         display_df = display_df.sort_values(by='date_posted', ascending=False)
-        display_df['date_posted'] = display_df['date_posted'].dt.strftime('%Y-%m-%d %H:%M')
+
 
 
         st.write(f"Showing {len(df)} jobs found from job database.")
@@ -175,7 +175,7 @@ try:
                 "url": st.column_config.LinkColumn("Url", display_text="View Job ↗"), 
                 "salary_range": "Salary (Local)",
                 "salary_range_usd": "Salary (USD)",
-                "date_posted": st.column_config.DatetimeColumn("Date Posted",format="YYYY-MM-DD HH:mm"),
+                "date_posted": "Posted On",
                 "job_title": "Job Title",
                 "company": "Company",
                 "location": "Location",
