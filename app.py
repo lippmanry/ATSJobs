@@ -175,7 +175,7 @@ try:
                 "url": st.column_config.LinkColumn("Url", display_text="View Job ↗"), 
                 "salary_range": "Salary (Local)",
                 "salary_range_usd": "Salary (USD)",
-                "date_posted": "Posted On",
+                "date_posted": st.column_config.DatetimeColumn("Date Posted",format="YYYY-MM-DD HH:mm"),
                 "job_title": "Job Title",
                 "company": "Company",
                 "location": "Location",
