@@ -294,7 +294,6 @@ def job_matching(target_locs, target_keywords, all_loc_strings, title, depts, is
     for word in blacklist:
         pattern = rf"\b{re.escape(word)}\b"
         if re.search(pattern, title_lower):
-            print(f"Blacklisted by title: {word}")
             return False, None
     
     #check title first
