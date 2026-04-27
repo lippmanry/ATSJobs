@@ -181,8 +181,8 @@ def adzuna_jobs():
     session.headers.update({
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36"
     })
-    ryan_keywords = ["cybersecurity", "siem", "splunk", "threat", "vulnerability", "security", "junior software", "junior backend",]
-    mik_keywords = ["frontend", "front end", "front-end", "vue", "product engineer", "design engineer", "web design"]
+    ryan_keywords = ["cybersecurity", "siem", "splunk", "threat", "vulnerability", "security", "analytics engineer", "analytic", "incident", "risk", "junior software", "junior backend", "junior back end", "junior developer", "privacy", "cyber", "data analyst"]
+    mik_keywords = ["frontend", "front end", "front-end", "vue", "product engineer", "web design", "web developer"]
     ryan_loc = ["canada", "ontario"]
     mik_loc = ["united kingdom", "uk", "gb", "london"]
     profiles = [

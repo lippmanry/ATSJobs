@@ -290,7 +290,7 @@ def job_matching(target_locs, target_keywords, all_loc_strings, title, depts, is
     content_lower = str(content).lower() if content else ""
     
     #blacklist some word combos
-    blacklist = ["security guard", "director", "mechanical design", "electrical design", "intern"]
+    blacklist = ["security guard", "director", "mechanical design", "electrical design", "intern", "electronics design", "cs&a design"]
     for word in blacklist:
         pattern = rf"\b{re.escape(word)}\b"
         if re.search(pattern, title_lower):

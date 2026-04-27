@@ -210,7 +210,7 @@ def ashby_jobs():
     })
     token_data = [t.get('token') for t in active_tokens if t.get('token')]
     
-    ryan_keywords = ["cybersecurity", "siem", "splunk", "threat", "vulnerability", "security", "analytics engineer", "incident", "risk", "junior software", "junior backend", "junior back end", "junior developer"]
+    ryan_keywords = ["cybersecurity", "siem", "splunk", "threat", "vulnerability", "security", "analytics engineer", "analytic", "incident", "risk", "junior software", "junior backend", "junior back end", "junior developer", "privacy", "cyber", "data analyst"]
     mik_keywords = ["frontend", "front end", "front-end", "vue", "product engineer", "web design", "web developer"]
         
     ryan_loc = ["canada", "ontario", "global"]
