@@ -120,9 +120,10 @@ try:
 
             
         #filter by search profile
+
         PROFILE_MAP ={
-            "Ryan": ["cybersecurity", "siem", "splunk", "threat", "vulnerability", "security engineer", "security analyst", "security", "information security", "analytics engineer", "analytic", "incident", "risk", "junior software", "junior backend", "junior back end", "junior developer", "cti"],
-            "Mik": ["frontend", "frontend developer", "front-end", "vue", "product engineer", "web design", "web developer"]
+            "Ryan": ["cybersecurity", "siem", "splunk", "threat", "vulnerability", "security engineer", "security analyst", "security", "information security", "analytics engineer", "analytic", "incident", "risk", "junior software", "junior backend", "junior back end", "junior developer", "cti", "privacy", "cyber", "data analyst"],
+            "Mik": ["frontend", "frontend developer", "front-end", "vue", "product engineer", "web design", "web developer", "design engineer"]
         }
         profiles = list(PROFILE_MAP.keys())
         selected_profile = st.sidebar.selectbox("Search profile", ["all"] + profiles)
