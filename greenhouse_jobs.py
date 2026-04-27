@@ -65,8 +65,8 @@ def process_single_token(profile, token, session):
                     print(f"    > Processed {index}/{total_jobs_found}")
             
                 title = job.get('title', '').lower()
-                raw_content = job.get('content', '')
-                clean_content = desc_cleanup(raw_content).trim() or ""
+                raw_content = job.get('content', '').strip()
+                clean_content = desc_cleanup(raw_content) or ""
                 searchable_content = clean_content.lower()
                 depts = [d.get('name', '').lower() for d in job.get('departments',[]) if d.get('name')]
                 id = str(token) + ":" + str(job.get('id'))

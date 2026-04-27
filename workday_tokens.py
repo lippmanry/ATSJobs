@@ -25,19 +25,28 @@ def workday_token_search(site, keyword):
     query = f'site:{site} {keyword}'
     print(f"Searching DDG for {query}")
     
-    system_blacklist = {'embed', 'search', 'v1', 'd', 'api', 'js', 'widgets', 'careers', 'www', 'myworkday', 'impl', 'preview'}
-    pattern = r"([a-zA-Z0-9_-]+)\.(wd[0-9]+)\.myworkdayjobs\.com"
-    
-    with DDGS() as ddgs:
-        results = ddgs.text(query, max_results=20)
-        for r in results:
-            url = r['href']
-            match = re.search(pattern, url)
-            if match:
-                tenant = match.group(1).lower()
-                datacenter = match.group(2).lower()
-                if tenant not in system_blacklist:
-                    tokens.add(f"{tenant}:{datacenter}")
+    tenant_blacklist = {'www', 'myworkday', 'workday', 'impl', 'preview', 'v1', 'api', 'en-us', 'en-gb', 'zh-cn'}
+
+    site_blacklist = {'search', 'login', 'embed', 'widgets', 'js', 'd'}
+    pattern = r"([a-zA-Z0-9_-]+)\.(wd[0-9]+)\.myworkdayjobs\.com/([a-zA-Z0-9_-]+)"
+    try:
+        with DDGS() as ddgs:
+            results = ddgs.text(query, max_results=30)
+            for r in results:
+                url = r['href']
+                match = re.search(pattern, url)
+                if match:
+                    tenant = match.group(1).lower()
+                    datacenter = match.group(2).lower()
+                    site_name = match.group(3).lower()
+                    if all([tenant, datacenter, site_name]):
+                        if tenant not in tenant_blacklist:
+                            if site not in site_blacklist:
+                                tokens.add(f"{tenant}:{datacenter}:{site_name}")
+                    else:
+                        print(f"Invalid token structure. Skipped: {tenant}:{datacenter}")
+    except Exception as e:
+        print(f"[ERROR] Search failed: {e}")
     return list(tokens)
 def workday_new_tokens():
     #search for multiple industries via common operations
