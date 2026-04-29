@@ -41,7 +41,7 @@ def workday_token_search(site, keyword):
                     site_name = match.group(3).lower()
                     if all([tenant, datacenter, site_name]):
                         if tenant not in tenant_blacklist:
-                            if site not in site_blacklist:
+                            if site_name not in site_blacklist:
                                 tokens.add(f"{tenant}:{datacenter}:{site_name}")
                     else:
                         print(f"Invalid token structure. Skipped: {tenant}:{datacenter}")
