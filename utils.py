@@ -297,14 +297,14 @@ def job_matching(target_locs, target_keywords, all_loc_strings, title, depts, is
             return False, None
     
     #check title first
-    title_dept_match = next((k for k in target_keywords if k in title_lower or any(k in d for d in search_depts)), None)
+    title_match = next((k for k in target_keywords if k in title_lower)), None)
     
     content_match = None
-    if content and not title_dept_match:
+    if content and not title_match:
         content_lower = str(content).lower() 
         content_match = next((k for k in target_keywords if k in content_lower), None)
     
-    match_word = title_dept_match or content_match
+    match_word = title_match or content_match
     if not match_word:
         return False, None
     
@@ -320,7 +320,7 @@ def job_matching(target_locs, target_keywords, all_loc_strings, title, depts, is
     
     is_match = False
         #check matches
-    if title_dept_match:
+    if title_match:
             if loc_check or (is_remote and target_in_soup):
                 is_match = True
     elif content_match:
