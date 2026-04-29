@@ -297,7 +297,7 @@ def job_matching(target_locs, target_keywords, all_loc_strings, title, depts, is
             return False, None
     
     #check title first
-    title_match = next((k for k in target_keywords if k in title_lower)), None)
+    title_match = next((k for k in target_keywords if k in title_lower), None)
     
     content_match = None
     if content and not title_match:
