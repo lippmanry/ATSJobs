@@ -76,7 +76,8 @@ def load_data():
         ("greenhouse_jobs", "Greenhouse"),
         ("lever_jobs", "Lever"),
         ("ashby_jobs", "Ashby"),
-        ("workable_board_jobs", "Workable")
+        ("workable_board_jobs", "Workable"),
+        ("workday_jobs", "Workday")
     ]
     dfs = [load_and_label(db, coll, label) for coll, label in sources]
     combined_df = pd.concat(dfs, ignore_index=True)
