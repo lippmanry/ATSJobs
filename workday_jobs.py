@@ -459,10 +459,10 @@ def workday_jobs(batch_size=50):
                                         '$set': { 'last_run': datetime.now(timezone.utc)}
                                         })
             continue
-        if (i + 1) % 5 == 0:
+        if (i + 1) % 10 == 0:
             sleep_time = random.uniform(120,300)
             print(f"Mini-batch complete. Cooling down for {int(sleep_time)/60} minutes...")
-            
+            time.sleep(sleep_time)
 
 if __name__ == "__main__":
     workday_jobs(50)
