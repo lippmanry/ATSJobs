@@ -25,4 +25,4 @@ jobs:
       - name: Run Scraper
         env:
           MONGO_URI: ${{ secrets.MONGO_URI }}
-        run: python your_script.py
+        run: python workday_jobs.py
