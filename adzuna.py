@@ -111,7 +111,8 @@ def process_jobs(session, app_id, app_key,
                                 title=title,
                                 depts = [],
                                 is_remote=is_remote,
-                                content=None)
+                                content=None,
+                                company=company)
 
                     
                     if is_match:

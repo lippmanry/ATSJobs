@@ -104,7 +104,7 @@ def process_single_token(profile, token, session):
                     profile["locations"],
                     profile["keywords"],
                     all_loc_strings,
-                    title, depts, is_remote, content=None
+                    title, depts, is_remote, content=None, company=company
                 )
                 if is_match:
                     time_since, days_old, date_posted = date_handler(job.get('publishedAt'))                           
@@ -112,21 +112,6 @@ def process_single_token(profile, token, session):
                         continue
 
                     search_flag = match_word
-           
-                #ryan's
-                # ryan_loc_check = location_validator(ryan_loc, all_loc_strings)
-                # ryan_target_in_soup = any(any(t in loc_str for t in ryan_loc) for loc_str in all_loc_strings)
-                # ryan_match_word = next((k for k in ryan_keywords if k in title or k in searchable_content or any(d and k in d for d in depts)), None)
-                # ryan_key_match = any(k in title or k in searchable_content or any(d and k in d for d in depts) for k in ryan_keywords)
-                
-                # #mik's
-                # mik_loc_check = location_validator(mik_loc, all_loc_strings)
-                # mik_target_in_soup = any(any(t in loc_str for t in mik_loc) for loc_str in all_loc_strings)
-                # mik_match_word = next((k for k in mik_keywords if k in title or k in searchable_content or any(d and k in d for d in depts)), None)
-                # mik_key_match = any(k in title or k in searchable_content or any(d and k in d for d in depts) for k in mik_keywords)
-                
-                # ryan_match = ryan_key_match and (ryan_loc_check or (is_remote and ryan_target_in_soup))
-                # mik_match = mik_key_match and (mik_loc_check or (is_remote and mik_target_in_soup))
                 
                 
                     

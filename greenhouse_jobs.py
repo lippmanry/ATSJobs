@@ -98,8 +98,8 @@ def process_single_token(profile, token, session):
                 )) if primary_loc else list(set(l.lower() for l in meta_locs))  
                                 
                 display_location = ", ".join(dict.fromkeys([primary_loc] + meta_locs)) if primary_loc or meta_locs else "Not given"
-                
-                is_match, match_word = job_matching(profile["locations"], profile["keywords"], all_loc_strings, title, depts, is_remote, content=None)
+                company = job.get('company_name')
+                is_match, match_word = job_matching(profile["locations"], profile["keywords"], all_loc_strings, title, depts, is_remote, content=None, company=company)
                 
                 if is_match:
                     job_id = job.get('id')
@@ -144,7 +144,7 @@ def process_single_token(profile, token, session):
                     extracted_fields = {
                         "job_id": id,
                         'job_title': title,
-                        'company': job.get('company_name'),
+                        'company': company,
                         'location': display_location,
                         'is_remote': is_remote,
                         'date_posted': date_posted,

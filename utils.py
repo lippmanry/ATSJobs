@@ -281,30 +281,37 @@ def salary_handler(text, country):
     
     return salary_range, salary_range_usd
 #reusable job matching function
-def job_matching(target_locs, target_keywords, all_loc_strings, title, depts, is_remote,content=None):
+#reusable job matching function
+def job_matching(target_locs, target_keywords, all_loc_strings, title, depts, is_remote,company=None,content=None):
     target_locs = list(target_locs) if target_locs else []
     target_keywords = list(target_keywords) if target_keywords else []
     all_loc_strings = list(all_loc_strings) if all_loc_strings else []
     search_depts = [str(d).lower() for d in depts if d] if depts else []
     title_lower = str(title).lower() if title else ""
     content_lower = str(content).lower() if content else ""
+    company_clean = str(company).lower().strip() if company else ""
+    
+    #company blacklist
+    company_blacklist = ["mercor", "dataannotation", "securiguard", "kraken", "kraken.com"]
+    if any(blacklisted.lower() in company_clean for blacklisted in company_blacklist):
+        return False, None
     
     #blacklist some word combos
-    blacklist = ["security guard", "director", "mechanical design", "electrical design", "intern", "electronics design", "cs&a design", "security officer"]
+    blacklist = ["security guard", "director", "mechanical design", "electrical design", "intern", "electronics design", "cs&a design", "aid security professional", "healthcare security"]
     for word in blacklist:
         pattern = rf"\b{re.escape(word)}\b"
         if re.search(pattern, title_lower):
             return False, None
     
     #check title first
-    title_match = next((k for k in target_keywords if k in title_lower), None)
+    title_dept_match = next((k for k in target_keywords if k in title_lower or any(k in d for d in search_depts)), None)
     
     content_match = None
-    if content and not title_match:
+    if content and not title_dept_match:
         content_lower = str(content).lower() 
         content_match = next((k for k in target_keywords if k in content_lower), None)
     
-    match_word = title_match or content_match
+    match_word = title_dept_match or content_match
     if not match_word:
         return False, None
     
@@ -320,7 +327,7 @@ def job_matching(target_locs, target_keywords, all_loc_strings, title, depts, is
     
     is_match = False
         #check matches
-    if title_match:
+    if title_dept_match:
             if loc_check or (is_remote and target_in_soup):
                 is_match = True
     elif content_match:
