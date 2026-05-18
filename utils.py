@@ -70,35 +70,48 @@ def fix_pay(html_desc, country_input):
 
 #format to usd for lazy americans like me
 def format_usd(val, currency):
-    if isinstance(val, (int, float)) and currency:
-        try:
-            usd_val = Currency.get_current_value_in_usd(val, currency)
-            
-            if usd_val is not None:
-                return f'{usd_val:,.2f}'
+    if not currency:
+        return "Not given"
+    try:
+        val = float(val)
+    except (ValueError, TypeError):
+        return "Not given"
+    if val == 0:
+        return "0.00"
+
+    try:
+        usd_val = Currency.get_current_value_in_usd(val, currency)
         
-        except Exception:
-            pass
+        if usd_val is not None:
+            if len(str(int(abs(usd_val)))) == 2:
+                usd_val *= 1000
+            return f'{usd_val:,.2f}'
+    
+    except Exception:
+        pass
         
     return 'Not given'
 
 #salary format helper
-def format_val(val):
+def format_val(val, currency=None):
+    if val is None:
+        return "Not given"
+    try:
+        val = float(val)
+    except (ValueError, TypeError):
+        return "Not given"
     if val == 0:
         return "0.00"
-    if len(str(abs(val))) < 5:
+    if len(str(int(abs(val)))) == 2:
         val *= 1000
     return f'{val:,.2f}'
 #format salary ranges
 def format_salary_range(min_val, max_val, currency, is_usd=False):
-    if is_usd:
-        s_min = format_usd(min_val, currency) 
-        s_max = format_usd(max_val, currency)
-        suffix = 'USD'
-    else:
-        s_min = format_val(min_val) if isinstance(min_val, (int, float)) else 'Not given'
-        s_max = format_val(max_val) if isinstance(max_val, (int, float)) else 'Not given'
-        suffix = currency
+    formatter = format_usd if is_usd else format_val
+    suffix = "USD" if is_usd else currency
+
+    s_min = formatter(min_val, currency)
+    s_max = formatter(max_val, currency)
     
     if s_min == 'Not given' and s_max == 'Not given':
         return 'Not given'
