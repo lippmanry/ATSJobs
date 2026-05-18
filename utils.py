@@ -82,15 +82,22 @@ def format_usd(val, currency):
         
     return 'Not given'
 
+#salary format helper
+def format_val(val):
+    if val == 0:
+        return "0.00"
+    if len(str(abs(val))) < 5:
+        val *= 1000
+    return f'{val:,.2f}'
 #format salary ranges
 def format_salary_range(min_val, max_val, currency, is_usd=False):
     if is_usd:
-        s_min = format_usd(min_val, currency)
+        s_min = format_usd(min_val, currency) 
         s_max = format_usd(max_val, currency)
         suffix = 'USD'
     else:
-        s_min = f'{min_val:,.2f}' if isinstance(min_val, (int, float)) else 'Not given'
-        s_max = f'{max_val:,.2f}' if isinstance(max_val, (int, float)) else 'Not given'
+        s_min = format_val(min_val) if isinstance(min_val, (int, float)) else 'Not given'
+        s_max = format_val(max_val) if isinstance(max_val, (int, float)) else 'Not given'
         suffix = currency
     
     if s_min == 'Not given' and s_max == 'Not given':
