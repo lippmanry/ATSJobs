@@ -101,7 +101,7 @@ def format_val(val, currency=None):
     except (ValueError, TypeError):
         return "Not given"
     if val == 0:
-        return "0.00"
+        return "Not given"
     if len(str(int(abs(val)))) == 2:
         val *= 1000
     return f'{val:,.2f}'
