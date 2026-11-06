@@ -43,16 +43,19 @@ def ashby_token_search(keyword):
     query = f'site:jobs.ashbyhq.com {keyword}'
     print(f"Searching for {query}")
     
-    with DDGS() as ddgs:
-        #DuckDuckGo for faster results and less block heavy
-        results = ddgs.text(query, max_results=20)
-        for r in results:
-            url = r['href']
-            match = re.search(r"jobs\.ashbyhq\.com/([^/&?#]+)", url)
-            if match:
-                token = match.group(1).strip()
-                if token not in ['embed', 'search', 'v1', 'd']:
-                    tokens.add(token)
+    try:
+        with DDGS() as ddgs:
+            #DuckDuckGo for faster results and less block heavy
+            results = ddgs.text(query, max_results=20)
+            for r in results:
+                url = r['href']
+                match = re.search(r"jobs\.ashbyhq\.com/([^/&?#]+)", url)
+                if match:
+                    token = match.group(1).strip()
+                    if token not in ['embed', 'search', 'v1', 'd']:
+                        tokens.add(token)
+    except Exception as e:
+        print(f"[ERROR] Search failed: {e}")
     return list(tokens)
 
 def ashby_new_tokens():

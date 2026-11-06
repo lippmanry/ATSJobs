@@ -280,15 +280,18 @@ def ddg_token_search(site, keyword):
     system_blacklist = {'embed', 'search', 'v1', 'd', 'api', 'js', 'widgets', 'careers'}
     pattern = rf"{re.escape(site)}/([^/&?#]+)"
     
-    with DDGS() as ddgs:
-        results = ddgs.text(query, max_results=20)
-        for r in results:
-            url = r['href']
-            match = re.search(pattern, url)
-            if match:
-                token = match.group(1).lower()
-                if token not in system_blacklist:
-                    tokens.add(token)
+    try:
+        with DDGS() as ddgs:
+            results = ddgs.text(query, max_results=20)
+            for r in results:
+                url = r['href']
+                match = re.search(pattern, url)
+                if match:
+                    token = match.group(1).lower()
+                    if token not in system_blacklist:
+                        tokens.add(token)
+    except Exception as e:
+        print(f"[ERROR] Search failed: {e}")
     return list(tokens)
 def salary_handler(text, country):
     min_v = max_v = currency = None
