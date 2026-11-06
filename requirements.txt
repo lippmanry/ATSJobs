@@ -5,6 +5,7 @@ python-dotenv
 requests
 beautifulsoup4
 python-dateutil
+hdx-python-api
 hdx-python-country
 pymongo
 python-dotenv
