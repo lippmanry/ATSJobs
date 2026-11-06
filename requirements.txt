@@ -6,7 +6,7 @@ requests
 beautifulsoup4
 python-dateutil
 hdx-python-api
-hdx-python-country
+hdx-python-country==4.3.1
 pymongo
 python-dotenv
 fake-useragent
