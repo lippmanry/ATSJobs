@@ -230,7 +230,7 @@ def lever_jobs():
     mik_keywords = ["frontend", "front end", "front-end", "vue", "product engineer", "web design", "web developer"]
     
     ryan_loc = ["canada", "ontario", "global"]
-    mik_loc = ["united kingdom", "uk", "gb", "global"]
+    mik_loc = ["global", "canada", "ontario"]
     profiles = [
     {
         "name": "Ryan",

@@ -185,7 +185,7 @@ def adzuna_jobs():
     ryan_keywords = ["cybersecurity", "siem", "splunk", "threat", "vulnerability", "security", "analytics engineer", "analytic", "incident", "risk", "junior software", "junior backend", "junior back end", "junior developer", "privacy", "cyber", "data analyst"]
     mik_keywords = ["frontend", "front end", "front-end", "vue", "product engineer", "web design", "web developer"]
     ryan_loc = ["canada", "ontario"]
-    mik_loc = ["united kingdom", "uk", "gb", "london"]
+    mik_loc = ["global", "canada", "ontario"]
     profiles = [
         {"name": "Ryan",
         "keywords": ryan_keywords,
@@ -193,7 +193,7 @@ def adzuna_jobs():
         "location": ryan_loc},
         {"name": "Mik",
         "keywords": mik_keywords,
-        "country": "gb",
+        "country": "ca",
         "location": mik_loc}
     ]
 

@@ -30,7 +30,7 @@ profiles = [
     {
         "name": "Mik",
         "keywords": mik_keywords,
-        "locations": ["United Kingdom"]
+        "locations": ["Canada"]
     }
 ]
 #funcs
@@ -209,18 +209,12 @@ def location_matcher(job, targets):
     if 'canada' in targets:
         if 'united kingdom' in searchable_content or 'london' in loc_text or 'uk' in ext_path:
             return False
-            
-
-    if 'united kingdom' in targets:
-        if 'canada' in searchable_content or 'toronto' in loc_text or 'calgary' in loc_text:
-            return False
 
     if any(t in searchable_content for t in targets):
         return True
         
     city_map = {
-        'canada': ['calgary', 'toronto', 'montreal', 'vancouver', 'ottawa', 'alberta', 'ontario', 'quebec'],
-        'united kingdom': ['london', 'manchester', 'edinburgh', 'reading', 'england', 'scotland']
+        'canada': ['calgary', 'toronto', 'montreal', 'vancouver', 'ottawa', 'alberta', 'ontario', 'quebec']
     }
     
     for t in targets:
@@ -424,7 +418,7 @@ def workday_jobs(batch_size=50):
         {
             "name": "Mik",
             "keywords": mik_keywords,
-            "locations": ["United Kingdom"]
+            "locations": ["Canada"]
         }
     ]
     for i, t in enumerate(tokens):

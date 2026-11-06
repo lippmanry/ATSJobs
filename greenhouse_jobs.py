@@ -118,8 +118,6 @@ def process_single_token(profile, token, session):
 
                     salary_range = "Not given"
                     salary_range_usd = "Not given"
-                    name = profile["name"]
-                    country = "canada" if name == "Ryan" else "uk"
                     
                     #try built in transparency first
                     pay_details = details.get('pay_input_ranges', {}) if details else {}
@@ -133,7 +131,7 @@ def process_single_token(profile, token, session):
                         salary_range_usd = format_salary_range(min_v, max_v, currency, is_usd=True)
                     
                     else:
-                        regex_pay = fix_pay(clean_content, country)
+                        regex_pay = fix_pay(clean_content, "canada")
                         if regex_pay:
                             min_v = regex_pay['min']
                             max_v = regex_pay['max']
@@ -206,7 +204,7 @@ def greenhouse_jobs():
     mik_keywords = ["frontend", "front end", "front-end", "vue", "product engineer", "web design", "web developer"]
     
     ryan_loc = ["canada", "ontario", "global"]
-    mik_loc = ["united kingdom", "uk", "gb", "global"]
+    mik_loc = ["global", "canada", "ontario"]
     profiles = [
     {
         "name": "Ryan",

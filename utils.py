@@ -107,6 +107,8 @@ def format_val(val, currency=None):
     return f'{val:,.2f}'
 #format salary ranges
 def format_salary_range(min_val, max_val, currency, is_usd=False):
+    if str(currency).strip().upper() == "CAD":
+        is_usd = True
     formatter = format_usd if is_usd else format_val
     suffix = "USD" if is_usd else currency
 

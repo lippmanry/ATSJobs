@@ -152,7 +152,7 @@ def workable_board_jobs():
     mik_keywords = ["frontend", "front end", "front-end", "vue", "product engineer", "web design", "web developer"]
 
     ryan_loc = ["canada", "ontario"]
-    mik_loc = ["united kingdom", "uk", "gb"]
+    mik_loc = ["global", "canada", "ontario"]
     
     profiles = [
     {
